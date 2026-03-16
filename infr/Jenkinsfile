@@ -1,7 +1,15 @@
 properties([
     parameters([
-        string(name: 'Environment', defaultValue: 'dev', description: 'Environment name (dev, staging, prod)'),
-        choice(name: 'Terraform_Action', choices: ['plan', 'apply', 'destroy'], description: 'Select the Terraform action to perform')
+        string(
+            name: 'Environment',
+            defaultValue: 'dev',
+            description: 'Environment name (dev, staging, prod)'
+        ),
+        choice(
+            name: 'Terraform_Action',
+            choices: ['plan', 'apply', 'destroy'],
+            description: 'Select the Terraform action to perform'
+        )
     ])
 ])
 
@@ -13,6 +21,7 @@ pipeline {
     }
 
     stages {
+
         stage('Preparing & Clean') {
             steps {
                 sh "echo Starting Pipeline for ${params.Environment}..."
@@ -34,49 +43,115 @@ pipeline {
             }
         }
 
-        stage('Quality & Security Gates') {
+        stage('Quality Gates') {
             parallel {
+
                 stage('Format Check') {
                     steps {
                         sh "terraform -chdir=${env.TF_DIR} fmt"
                     }
                 }
+
                 stage('Validate Syntax') {
                     steps {
                         sh "terraform -chdir=${env.TF_DIR} validate"
                     }
                 }
+
             }
         }
 
-        stage('Terraform Action') {
+        stage('Terraform Plan') {
+            when {
+                expression { params.Terraform_Action == 'plan' || params.Terraform_Action == 'apply' }
+            }
             steps {
-                withCredentials([azureServicePrincipal('meran_stack_sp')]) {
-                    script {
-                       // Make sure your .tfvars file is also in the TF_DIR folder!
-//                        def varFile = "${params.Environment}.tfvars"
-
-                        if (params.Terraform_Action == 'plan') {
-                            sh "terraform -chdir=${env.TF_DIR} plan "
-                        }
-                        else if (params.Terraform_Action == 'apply') {
-                            sh "terraform -chdir=${env.TF_DIR} apply  -auto-approve"
-                        }
-                        else if (params.Terraform_Action == 'destroy') {
-                            sh "terraform -chdir=${env.TF_DIR} destroy  -auto-approve"
-                        }
-                    }
+                withCredentials([
+                    azureServicePrincipal(
+                        credentialsId: 'meran_stack_sp',
+                        clientIdVariable: 'ARM_CLIENT_ID',
+                        clientSecretVariable: 'ARM_CLIENT_SECRET',
+                        subscriptionIdVariable: 'ARM_SUBSCRIPTION_ID',
+                        tenantIdVariable: 'ARM_TENANT_ID'
+                    )
+                ]) {
+                    sh "terraform -chdir=${env.TF_DIR} plan -out=tfplan"
                 }
             }
         }
+
+        stage('Approval Before Apply') {
+            when {
+                expression { params.Terraform_Action == 'apply' }
+            }
+            steps {
+                input message: "Approve Terraform Apply to ${params.Environment}?"
+            }
+        }
+
+        stage('Terraform Apply') {
+            when {
+                expression { params.Terraform_Action == 'apply' }
+            }
+            steps {
+                withCredentials([
+                    azureServicePrincipal(
+                        credentialsId: 'meran_stack_sp',
+                        clientIdVariable: 'ARM_CLIENT_ID',
+                        clientSecretVariable: 'ARM_CLIENT_SECRET',
+                        subscriptionIdVariable: 'ARM_SUBSCRIPTION_ID',
+                        tenantIdVariable: 'ARM_TENANT_ID'
+                    )
+                ]) {
+                    sh "terraform -chdir=${env.TF_DIR} apply tfplan"
+                }
+            }
+        }
+
+        stage('Terraform Destroy') {
+            when {
+                expression { params.Terraform_Action == 'destroy' }
+            }
+            steps {
+                withCredentials([
+                    azureServicePrincipal(
+                        credentialsId: 'meran_stack_sp',
+                        clientIdVariable: 'ARM_CLIENT_ID',
+                        clientSecretVariable: 'ARM_CLIENT_SECRET',
+                        subscriptionIdVariable: 'ARM_SUBSCRIPTION_ID',
+                        tenantIdVariable: 'ARM_TENANT_ID'
+                    )
+                ]) {
+                    sh "terraform -chdir=${env.TF_DIR} destroy -auto-approve"
+                }
+            }
+        }
+
+        stage('Terraform Outputs') {
+            steps {
+                withCredentials([
+                    azureServicePrincipal(
+                        credentialsId: 'meran_stack_sp',
+                        clientIdVariable: 'ARM_CLIENT_ID',
+                        clientSecretVariable: 'ARM_CLIENT_SECRET',
+                        subscriptionIdVariable: 'ARM_SUBSCRIPTION_ID',
+                        tenantIdVariable: 'ARM_TENANT_ID'
+                    )
+                ]) {
+                    sh "terraform -chdir=${env.TF_DIR} output acr_login_server"
+                }
+            }
+        }
+
     }
 
     post {
         always {
             sh "echo Pipeline execution finished."
         }
+
         failure {
-            sh "echo Pipeline FAILED. Check the security scan or terraform logs."
+            sh "echo Pipeline FAILED. Check the logs."
         }
     }
 }
