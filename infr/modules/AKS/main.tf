@@ -21,7 +21,7 @@ resource "azurerm_kubernetes_cluster" "meran_stack_app" {
   name                              = var.cluser_name
   resource_group_name               = var.rg_name
   dns_prefix                        = "${var.rg_name}-cluster"
-  kubernetes_version                = data.azurerm_kubernetes_service_versions.aks_version
+  kubernetes_version                = data.azurerm_kubernetes_service_versions.aks_version.latest_version
   node_resource_group               = "${var.rg_name}-node-group"
   sku_tier                          = "Free"
   role_based_access_control_enabled = true
