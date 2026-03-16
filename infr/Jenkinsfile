@@ -1,0 +1,57 @@
+properties([
+    parameters([
+        string(name: 'Environment', defaultValue: 'dev', description: 'Environment name'),
+        choice(name: 'Terraform_Action', choices: ['plan', 'apply', 'destroy'], description: 'Action to perform')
+    ])
+])
+
+pipeline {
+    agent any
+    stages {
+        stage('Preparing') {
+            steps {
+                sh 'echo Preparing....'
+            }
+        }
+
+        stage('Git Pulling') {
+            steps {
+                checkout scm
+            }
+        }
+
+        stage('Terraform Init') {
+            steps {
+                withCredentials([azureServicePrincipal('meran_stack_sp')]) {
+                    sh 'terraform init'
+                }
+            }
+        }
+
+        stage('Terraform Validate') {
+            steps {
+                withCredentials([azureServicePrincipal('meran_stack_sp')]) {
+                    sh 'terraform validate'
+                }
+            }
+        }
+
+        stage('Terraform Action') {
+            steps {
+                withCredentials([azureServicePrincipal('meran_stack_sp')]) {
+                    script {
+                        if (params.Terraform_Action == 'plan') {
+                            sh "terraform -chdir=eks/ plan -var-file=${params.Environment}.tfvars"
+                        } else if (params.Terraform_Action == 'apply') {
+                            sh "terraform -chdir=eks/ apply -var-file=${params.Environment}.tfvars -auto-approve"
+                        } else if (params.Terraform_Action == 'destroy') {
+                            sh "terraform -chdir=eks/ destroy -var-file=${params.Environment}.tfvars -auto-approve"
+                        } else {
+                            error "Invalid value for Terraform_Action: ${params.Terraform_Action}"
+                        }
+                    }
+                }
+            }
+        }
+    }
+}
