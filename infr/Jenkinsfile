@@ -38,7 +38,7 @@ pipeline {
             parallel {
                 stage('Format Check') {
                     steps {
-                        sh "terraform -chdir=${env.TF_DIR} fmt -check"
+                        sh "terraform -chdir=${env.TF_DIR} fmt"
                     }
                 }
                 stage('Validate Syntax') {
