@@ -8,6 +8,10 @@ properties([
 pipeline {
     agent any
 
+    environment {
+        TF_DIR = "infr/"
+    }
+
     stages {
         stage('Preparing & Clean') {
             steps {
@@ -25,7 +29,7 @@ pipeline {
         stage('Terraform Init') {
             steps {
                 withCredentials([azureServicePrincipal('meran_stack_sp')]) {
-                    sh "terraform init"
+                    sh "terraform -chdir=${env.TF_DIR} init"
                 }
             }
         }
@@ -34,12 +38,12 @@ pipeline {
             parallel {
                 stage('Format Check') {
                     steps {
-                        sh "terraform fmt"
+                        sh "terraform -chdir=${env.TF_DIR} fmt"
                     }
                 }
                 stage('Validate Syntax') {
                     steps {
-                        sh "terraform validate"
+                        sh "terraform -chdir=${env.TF_DIR} validate"
                     }
                 }
             }
@@ -53,13 +57,13 @@ pipeline {
 //                        def varFile = "${params.Environment}.tfvars"
 
                         if (params.Terraform_Action == 'plan') {
-                            sh "terraform plan "
+                            sh "terraform -chdir=${env.TF_DIR} plan "
                         }
                         else if (params.Terraform_Action == 'apply') {
-                            sh "terraform apply  -auto-approve"
+                            sh "terraform -chdir=${env.TF_DIR} apply  -auto-approve"
                         }
                         else if (params.Terraform_Action == 'destroy') {
-                            sh "terraform destroy  -auto-approve"
+                            sh "terraform -chdir=${env.TF_DIR} destroy  -auto-approve"
                         }
                     }
                 }
