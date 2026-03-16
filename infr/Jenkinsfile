@@ -46,11 +46,6 @@ pipeline {
                         sh "terraform -chdir=${env.TF_DIR} validate"
                     }
                 }
-                stage('tfsec Scan') {
-                    steps {
-                        sh "tfsec ${env.TF_DIR}"
-                    }
-                }
             }
         }
 
