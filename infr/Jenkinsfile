@@ -53,17 +53,17 @@ pipeline {
             steps {
                 withCredentials([azureServicePrincipal('meran_stack_sp')]) {
                     script {
-                        // Make sure your .tfvars file is also in the TF_DIR folder!
-                        def varFile = "${params.Environment}.tfvars"
+                       // Make sure your .tfvars file is also in the TF_DIR folder!
+//                        def varFile = "${params.Environment}.tfvars"
 
                         if (params.Terraform_Action == 'plan') {
-                            sh "terraform -chdir=${env.TF_DIR} plan -var-file=${varFile}"
+                            sh "terraform -chdir=${env.TF_DIR} plan "
                         }
                         else if (params.Terraform_Action == 'apply') {
-                            sh "terraform -chdir=${env.TF_DIR} apply -var-file=${varFile} -auto-approve"
+                            sh "terraform -chdir=${env.TF_DIR} apply  -auto-approve"
                         }
                         else if (params.Terraform_Action == 'destroy') {
-                            sh "terraform -chdir=${env.TF_DIR} destroy -var-file=${varFile} -auto-approve"
+                            sh "terraform -chdir=${env.TF_DIR} destroy  -auto-approve"
                         }
                     }
                 }
