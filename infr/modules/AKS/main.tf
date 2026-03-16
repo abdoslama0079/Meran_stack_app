@@ -63,8 +63,8 @@ resource "azurerm_kubernetes_cluster_node_pool" "app_pool" {
 }
 
 resource "azurerm_role_assignment" "acr_aks_assignment" {
-  principal_id                           = azurerm_kubernetes_cluster.meran_stack_app.kubelet_identity[0].object_id
-  scope                                  = var.acr_id
-  role_definition_name                   = "AcrPull"
-  delegated_managed_identity_resource_id = [azurerm_kubernetes_cluster.meran_stack_app]
+  principal_id         = azurerm_kubernetes_cluster.meran_stack_app.kubelet_identity[0].object_id
+  scope                = var.acr_id
+  role_definition_name = "AcrPull"
+  depends_on           = [azurerm_kubernetes_cluster.meran_stack_app]
 }

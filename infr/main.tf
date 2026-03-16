@@ -24,7 +24,7 @@ module "AKS" {
 
   aks_location = var.location
   acr_id       = module.ACR.acr_id
-  subnet       = module.Vnet.aks_subnet
+  subnet       = module.Vnet.aks_subnet_id
   rg_name      = var.rg_name
   depends_on   = [module.ACR, module.Vnet]
 }
