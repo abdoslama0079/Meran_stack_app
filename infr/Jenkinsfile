@@ -1,16 +1,23 @@
 properties([
     parameters([
-        string(name: 'Environment', defaultValue: 'dev', description: 'Environment name'),
-        choice(name: 'Terraform_Action', choices: ['plan', 'apply', 'destroy'], description: 'Action to perform')
+        string(name: 'Environment', defaultValue: 'dev', description: 'Environment name (dev, staging, prod)'),
+        choice(name: 'Terraform_Action', choices: ['plan', 'apply', 'destroy'], description: 'Select the Terraform action to perform')
     ])
 ])
 
 pipeline {
     agent any
+
+    environment {
+        // Points to the directory where your AKS Terraform modules live
+        TF_DIR = "/modules/AKS"
+    }
+
     stages {
-        stage('Preparing') {
+        stage('Preparing & Clean') {
             steps {
-                sh 'echo Preparing....'
+                sh 'echo "Starting Pipeline for ${params.Environment}..."'
+                deleteDir() // Clean workspace for a fresh start
             }
         }
 
@@ -23,15 +30,28 @@ pipeline {
         stage('Terraform Init') {
             steps {
                 withCredentials([azureServicePrincipal('meran_stack_sp')]) {
-                    sh 'terraform init'
+                    sh "terraform -chdir=${env.TF_DIR} init"
                 }
             }
         }
 
-        stage('Terraform Validate') {
-            steps {
-                withCredentials([azureServicePrincipal('meran_stack_sp')]) {
-                    sh 'terraform validate'
+        stage('Quality & Security Gates') {
+            parallel {
+                stage('Format Check') {
+                    steps {
+                        sh "terraform -chdir=${env.TF_DIR} fmt -check"
+                    }
+                }
+                stage('Validate Syntax') {
+                    steps {
+                        sh "terraform -chdir=${env.TF_DIR} validate"
+                    }
+                }
+                stage('tfsec Scan') {
+                    steps {
+                        // This identifies security risks in your AKS configuration
+                        sh "tfsec ${env.TF_DIR}"
+                    }
                 }
             }
         }
@@ -40,18 +60,29 @@ pipeline {
             steps {
                 withCredentials([azureServicePrincipal('meran_stack_sp')]) {
                     script {
+                        def varFile = "${params.Environment}.tfvars"
+
                         if (params.Terraform_Action == 'plan') {
-                            sh "terraform -chdir=eks/ plan -var-file=${params.Environment}.tfvars"
-                        } else if (params.Terraform_Action == 'apply') {
-                            sh "terraform -chdir=eks/ apply -var-file=${params.Environment}.tfvars -auto-approve"
-                        } else if (params.Terraform_Action == 'destroy') {
-                            sh "terraform -chdir=eks/ destroy -var-file=${params.Environment}.tfvars -auto-approve"
-                        } else {
-                            error "Invalid value for Terraform_Action: ${params.Terraform_Action}"
+                            sh "terraform -chdir=${env.TF_DIR} plan -var-file=${varFile}"
+                        }
+                        else if (params.Terraform_Action == 'apply') {
+                            sh "terraform -chdir=${env.TF_DIR} apply -var-file=${varFile} -auto-approve"
+                        }
+                        else if (params.Terraform_Action == 'destroy') {
+                            sh "terraform -chdir=${env.TF_DIR} destroy -var-file=${varFile} -auto-approve"
                         }
                     }
                 }
             }
+        }
+    }
+
+    post {
+        always {
+            sh 'echo "Pipeline execution finished."'
+        }
+        failure {
+            sh 'echo "Pipeline FAILED. Check the security scan or terraform logs."'
         }
     }
 }
