@@ -25,7 +25,7 @@ resource "azurerm_kubernetes_cluster" "meran_stack_app" {
   node_resource_group               = "${var.rg_name}-node-group"
   sku_tier                          = "Free"
   role_based_access_control_enabled = true
-
+  oidc_issuer_enabled = true
   default_node_pool {
     name                 = "systempool"
     vm_size              = "Standard_D2s_v3"
