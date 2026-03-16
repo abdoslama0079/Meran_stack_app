@@ -32,7 +32,6 @@ resource "azurerm_kubernetes_cluster" "meran_stack_app" {
     auto_scaling_enabled = true
     min_count            = 1
     max_count            = 2
-    mode                 = "System"
     vnet_subnet_id       = var.subnet
   }
 
