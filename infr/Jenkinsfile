@@ -9,15 +9,14 @@ pipeline {
     agent any
 
     environment {
-        // Points to the directory where your AKS Terraform modules live
-        TF_DIR = "/modules/AKS"
+        TF_DIR = "infr/modules/AKS"
     }
 
     stages {
         stage('Preparing & Clean') {
             steps {
-                sh 'echo "Starting Pipeline for ${params.Environment}..."'
-                deleteDir() // Clean workspace for a fresh start
+                sh "echo Starting Pipeline for ${params.Environment}..."
+                deleteDir()
             }
         }
 
@@ -49,7 +48,6 @@ pipeline {
                 }
                 stage('tfsec Scan') {
                     steps {
-                        // This identifies security risks in your AKS configuration
                         sh "tfsec ${env.TF_DIR}"
                     }
                 }
@@ -60,6 +58,7 @@ pipeline {
             steps {
                 withCredentials([azureServicePrincipal('meran_stack_sp')]) {
                     script {
+                        // Make sure your .tfvars file is also in the TF_DIR folder!
                         def varFile = "${params.Environment}.tfvars"
 
                         if (params.Terraform_Action == 'plan') {
@@ -79,10 +78,10 @@ pipeline {
 
     post {
         always {
-            sh 'echo "Pipeline execution finished."'
+            sh "echo Pipeline execution finished."
         }
         failure {
-            sh 'echo "Pipeline FAILED. Check the security scan or terraform logs."'
+            sh "echo Pipeline FAILED. Check the security scan or terraform logs."
         }
     }
 }
