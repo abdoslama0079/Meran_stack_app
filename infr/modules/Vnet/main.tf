@@ -17,7 +17,7 @@ resource "azurerm_subnet" "storage_subnet" {
   address_prefixes     = var.storage_address_prefix
   name                 = var.storage_subnet_name
   resource_group_name  = var.rg_name
-  virtual_network_name = var.storage_subnet_name
+  virtual_network_name = azurerm_virtual_network.vnet.name
 }
 
 resource "azurerm_private_endpoint" "storage_pe" {
