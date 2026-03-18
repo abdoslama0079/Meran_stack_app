@@ -155,7 +155,7 @@ pipeline {
                             ).trim()
 
                             def storageName = sh(
-                                script: "terraform -chdir=${env.TF_DIR} output -raw storage_account_name",
+                                script: "terraform -chdir=${env.TF_DIR} output -raw aks_storage_account_name",
                                 returnStdout: true
                             ).trim()
 
