@@ -1,5 +1,5 @@
 resource "azurerm_storage_account" "aks_storage_account" {
-  name                     = "${lower(var.rg_name)}${lower(var.storage_account_name)}"
+  name                     = var.storage_account_name
   resource_group_name      = var.rg_name
   location                 = var.location
   account_tier             = "Standard"
