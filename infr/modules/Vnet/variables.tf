@@ -33,4 +33,6 @@ variable "storage_address_prefix" {
   default = ["10.1.2.0/24"]
 }
 
-variable "aks_storage" {}
+variable "aks_storage" {
+  type = any
+}
