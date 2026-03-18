@@ -13,5 +13,5 @@ variable "storage_account_name" {
 
 variable "storage_container_name" {
   type = string
-  default = "aks_db"
+  default = "aks-db"
 }
