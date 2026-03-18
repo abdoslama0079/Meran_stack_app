@@ -12,9 +12,3 @@ output "key_vault_name" {
   description = "The Name of the Key Vault"
   value       = azurerm_key_vault.kv.name
 }
-
-output "tenant_id" {
-  description = "The Azure Tenant ID"
-  value       = data.azurerm_client_config.current.tenant_id
-}
-
