@@ -11,3 +11,7 @@ output "user_identity_client_id" {
   description = "The Client ID of the Managed Identity for Workload Identity"
   value       = azurerm_user_assigned_identity.kv_identity.client_id
 }
+
+output "workload_identity_client_id" {
+  value = azurerm_user_assigned_identity.kv_identity.client_id
+}

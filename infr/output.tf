@@ -42,6 +42,10 @@ output "user_identity_client_id" {
   value       = module.AKS.user_identity_client_id
 }
 
+output "workload_identity_client_id" {
+  value = module.AKS.workload_identity_client_id
+}
+
 
 # Storage account output
 output "aks_storage_account_name" {
