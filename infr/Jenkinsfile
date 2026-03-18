@@ -138,7 +138,16 @@ pipeline {
                         tenantIdVariable: 'ARM_TENANT_ID'
                     )
                 ]) {
-                    sh "terraform -chdir=${env.TF_DIR} output acr_login_server"
+                    def acr_login_server = sh(script: "terraform -chdir=${env.TF_DIR} output acr_login_server")
+                    def kvUri = sh(script: "terraform -chdir=${env.TF_DIR} output -raw key_vault_uri", returnStdout: true).trim()
+                    def clientId = sh(script: "terraform -chdir=${env.TF_DIR} output -raw workload_identity_client_id", returnStdout: true).trim()
+                    def storageName = sh(script: "terraform -chdir=${env.TF_DIR} output -raw storage_account_name", returnStdout: true).trim()
+
+                    echo "--- INFRASTRUCTURE COORDINATES ---"
+                    echo "Key Vault URI: ${kvUri}"
+                    echo "Azure Client ID (Workload Identity): ${clientId}"
+                    echo "Storage Account: ${storageName}"
+                    echo "----------------------------------"
                 }
             }
         }
