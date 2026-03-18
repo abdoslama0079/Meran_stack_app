@@ -3,8 +3,8 @@ output "acr_name" {
 }
 
 output "acr_login_server" {
-  value = azurerm_container_registry.acr.login_server
-  depends_on = azurerm_container_registry.acr
+  depends_on = [azurerm_container_registry.acr]
+  value      = azurerm_container_registry.acr.login_server
 }
 
 output "acr_id" {
