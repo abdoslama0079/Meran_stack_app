@@ -27,7 +27,7 @@ resource "azurerm_private_endpoint" "storage_pe" {
   subnet_id           = azurerm_subnet.storage_subnet.id
   private_service_connection {
     name                           = "storage-connection"
-    private_connection_resource_id = var.aks_storage.id
+    private_connection_resource_id = var.aks_storage
     is_manual_connection           = false
     subresource_names              = ["blob"] # Connect to the Blob service specifically
   }
