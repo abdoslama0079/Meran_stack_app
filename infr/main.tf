@@ -16,9 +16,15 @@ module "StorageAccount" {
   source        = "./modules/StorageAccount"
   location      = var.location
   rg_name       = var.rg_name
-  aks_subnet_id = module.Vnet.aks_subnet_id
 
   depends_on = [azurerm_resource_group.rg_name_tf]
+}
+
+resource "azurerm_storage_account_network_rules" "lockdown" {
+  storage_account_id = module.StorageAccount.aks_storage_id
+  default_action     = "Deny"
+  bypass             = ["AzureServices"]
+  virtual_network_subnet_ids = [module.Vnet.aks_subnet_id]
 }
 
 module "ACR" {

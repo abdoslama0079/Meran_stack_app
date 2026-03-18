@@ -15,5 +15,3 @@ variable "storage_container_name" {
   type = string
   default = "aks_db"
 }
-
-variable "aks_subnet_id" {}

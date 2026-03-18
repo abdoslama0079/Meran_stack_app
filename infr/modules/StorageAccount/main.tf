@@ -11,10 +11,3 @@ resource "azurerm_storage_container" "aks_db" {
   storage_account_id = azurerm_storage_account.aks_storage_account.id
   container_access_type = "private"
 }
-
-resource "azurerm_storage_account_network_rules" "lockdown" {
-  storage_account_id = azurerm_storage_account.aks_storage_account.id
-  default_action     = "Deny"
-  bypass             = ["AzureServices"]
-  virtual_network_subnet_ids = [var.aks_subnet_id]
-}
