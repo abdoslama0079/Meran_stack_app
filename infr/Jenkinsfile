@@ -129,7 +129,8 @@ pipeline {
 
         stage('Terraform Outputs') {
             steps {
-                withCredentials([
+                script {
+                                        withCredentials([
                     azureServicePrincipal(
                         credentialsId: 'meran_stack_sp',
                         clientIdVariable: 'ARM_CLIENT_ID',
@@ -164,6 +165,7 @@ pipeline {
                             echo "Azure Client ID (Workload Identity): ${clientId}"
                             echo "Storage Account: ${storageName}"
                             echo "----------------------------------"
+                }
                 }
             }
         }
