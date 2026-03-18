@@ -1,11 +1,9 @@
 variable "rg_name" {
   type = string
-  default = "meran_stack_rg"
 }
 
 variable "location" {
   type = string
-  default = "australiaeast"
 }
 
 variable "meran_stack_vnet" {
@@ -25,3 +23,14 @@ variable "aks_subnet_name" {
   type = string
   default = "aks_subnet"
 }
+
+variable "storage_subnet_name" {
+  type = string
+  default = "storage_subnet"
+}
+
+variable "storage_address_prefix" {
+  default = ["10.1.2.0/24"]
+}
+
+variable "aks_storage" {}

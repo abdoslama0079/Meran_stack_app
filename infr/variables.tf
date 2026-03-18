@@ -1,6 +1,6 @@
 variable "rg_name" {
   type = string
-  default = "meran-stack-rg"
+  default = "meran_stack_rg"
 }
 
 variable "location" {
