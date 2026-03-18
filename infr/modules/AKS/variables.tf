@@ -9,9 +9,7 @@ variable "rg_name" {
   type = string
 }
 
-variable "rg_id" {
-  type = number
-}
+variable "rg_id" {}
 
 variable "acr_id" {
   type = string
