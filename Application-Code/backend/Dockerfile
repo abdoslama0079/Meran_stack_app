@@ -1,19 +1,6 @@
-FROM node:18-alpine
-
+FROM node:14
 WORKDIR /usr/src/app
-
 COPY package*.json ./
-
-# 🔹 Install only production dependencies (no test/dev tools)
-RUN npm install --omit=dev
-
+RUN npm install
 COPY . .
-
-USER node
-
-ENV NODE_ENV=production
-ENV PORT=3500
-
-EXPOSE 3500
-
 CMD ["node", "index.js"]

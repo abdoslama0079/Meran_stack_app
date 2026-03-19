@@ -9,78 +9,60 @@ import {
 class Tasks extends Component {
     state = { tasks: [], currentTask: "" };
 
-    // 🔹 Load tasks when the page opens
     async componentDidMount() {
         try {
             const { data } = await getTasks();
-            // In our Pretty Backend, data is wrapped in 'data.data'
-            this.setState({ tasks: data.data || data });
+            this.setState({ tasks: data });
         } catch (error) {
-            console.error("❌ Failed to fetch tasks:", error);
+            console.log(error);
         }
     }
 
-    // 🔹 Handle typing in the input box
     handleChange = ({ currentTarget: input }) => {
         this.setState({ currentTask: input.value });
     };
 
-    // 🔹 Create a new task
     handleSubmit = async (e) => {
         e.preventDefault();
-        const { tasks, currentTask } = this.state;
-
+        const originalTasks = this.state.tasks;
         try {
-            // FIX: Changed 'task' to 'title' to match our Backend Schema
-            const { data } = await addTask({
-                title: currentTask,
-                createdBy: "Abdo" // Required by our Pretty Schema
-            });
-
-            // Add the new task to the list immediately
-            this.setState({
-                tasks: [...tasks, data.data],
-                currentTask: ""
-            });
-            console.log("✅ Task added successfully");
+            const { data } = await addTask({ task: this.state.currentTask });
+            const tasks = originalTasks;
+            tasks.push(data);
+            this.setState({ tasks, currentTask: "" });
         } catch (error) {
-            console.error("❌ Error adding task:", error);
+            console.log(error);
         }
     };
 
-    // 🔹 Toggle Complete/Incomplete
-    handleUpdate = async (id) => {
-        const originalTasks = [...this.state.tasks];
+    handleUpdate = async (currentTask) => {
+        const originalTasks = this.state.tasks;
         try {
             const tasks = [...originalTasks];
-            const index = tasks.findIndex((t) => t._id === id);
-
-            // Toggle the 'completed' status
-            tasks[index] = { ...tasks[index], completed: !tasks[index].completed };
+            const index = tasks.findIndex((task) => task._id === currentTask);
+            tasks[index] = { ...tasks[index] };
+            tasks[index].completed = !tasks[index].completed;
             this.setState({ tasks });
-
-            // Sync with Backend
-            await updateTask(id, { completed: tasks[index].completed });
+            await updateTask(currentTask, {
+                completed: tasks[index].completed,
+            });
         } catch (error) {
-            // If server fails, revert back to the old state
             this.setState({ tasks: originalTasks });
-            console.error("❌ Update failed, reverting state:", error);
+            console.log(error);
         }
     };
 
-    // 🔹 Delete a task
-    handleDelete = async (id) => {
-        const originalTasks = [...this.state.tasks];
+    handleDelete = async (currentTask) => {
+        const originalTasks = this.state.tasks;
         try {
-            const tasks = originalTasks.filter((t) => t._id !== id);
+            const tasks = originalTasks.filter(
+                (task) => task._id !== currentTask
+            );
             this.setState({ tasks });
-
-            // Sync with Backend
-            await deleteTask(id);
+            await deleteTask(currentTask);
         } catch (error) {
-            // If server fails, bring the task back
             this.setState({ tasks: originalTasks });
-            console.error("❌ Delete failed, reverting state:", error);
+            console.log(error);
         }
     };
 }

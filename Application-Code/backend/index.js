@@ -1,73 +1,46 @@
-const express = require("express");
+const tasks = require("./routes/tasks");
+const connection = require("./db");
 const cors = require("cors");
+const express = require("express");
+const app = express();
 const mongoose = require('mongoose');
 
-// 🔹 Import Local Modules
-const connection = require("./db");
-const tasks = require("./routes/tasks");
-
-// 🔹 Initialize App
-const app = express();
-const port = process.env.PORT || 3500;
-
-// 🔹 Connect to MongoDB
 connection();
 
-/* -------------------------------------------------------------------------- */
-/* 🛠️ MIDDLEWARE                                                              */
-/* -------------------------------------------------------------------------- */
-app.use(express.json()); // Allows the API to read JSON data
-app.use(cors());         // Allows your Frontend to talk to the Backend
+app.use(express.json());
+app.use(cors());
 
-/* -------------------------------------------------------------------------- */
-/* 🏥 KUBERNETES & AZURE HEALTH CHECKS                                        */
-/* -------------------------------------------------------------------------- */
+// Health check endpoints
 
-// 1. Health: Is the server alive?
-app.get('/healthz', (req, res) => res.status(200).send('✅ Server is Alive'));
+// Basic health check to see if the server is running
+app.get('/healthz', (req, res) => {
+    res.status(200).send('Healthy');
+});
 
-// 2. Ready: Is the Database connected and ready for traffic?
+let lastReadyState = null;  
+// Readiness check to see if the server is ready to serve requests
 app.get('/ready', (req, res) => {
+    // Here you can add logic to check database connection or other dependencies
     const isDbConnected = mongoose.connection.readyState === 1;
+    if (isDbConnected !== lastReadyState) {
+        console.log(`Database readyState: ${mongoose.connection.readyState}`);
+        lastReadyState = isDbConnected;
+    }
+    
     if (isDbConnected) {
-        res.status(200).send('✅ Database Ready');
+        res.status(200).send('Ready');
     } else {
-        res.status(503).send('❌ Database Not Connected');
+        res.status(503).send('Not Ready');
     }
 });
 
-// 3. Started: Has the app finished booting up?
-app.get('/started', (req, res) => res.status(200).send('✅ App Started'));
+// Startup check to ensure the server has started correctly
+app.get('/started', (req, res) => {
+    // Assuming the server has started correctly if this endpoint is reachable
+    res.status(200).send('Started');
+});
 
-/* -------------------------------------------------------------------------- */
-/* 📝 ROUTES                                                                  */
-/* -------------------------------------------------------------------------- */
 app.use("/api/tasks", tasks);
 
-// Welcome Route (Great for testing your VM IP in the browser)
-app.get("/", (req, res) => {
-    res.send("<h1>🚀 Welcome to the To-Do API</h1><p>Running on Port " + port + "</p>");
-});
-
-/* -------------------------------------------------------------------------- */
-/* 🛡️ GLOBAL ERROR HANDLER                                                    */
-/* -------------------------------------------------------------------------- */
-app.use((err, req, res, next) => {
-    console.error("❌ Unexpected Error:", err.stack);
-    res.status(500).json({
-        success: false,
-        message: "Something went wrong on our end! 😢",
-        error: process.env.NODE_ENV === 'production' ? null : err.message
-    });
-});
-
-/* -------------------------------------------------------------------------- */
-/* 🚀 SERVER STARTUP                                                          */
-/* -------------------------------------------------------------------------- */
-app.listen(port, () => {
-    console.log(`
-    🚀 Backend is "Pretty" and Ready!
-    📡 Listening on Port: ${port}
-    🔗 Local Health: http://localhost:${port}/healthz
-    `);
-});
+const port = process.env.PORT || 3500;
+app.listen(port, () => console.log(`Listening on port ${port}...`));

@@ -1,68 +1,40 @@
-/* 🔹 Modern Reset & Typography */
 body {
     margin: 0;
     padding: 0;
-    /* Using Inter/System fonts for a cleaner, high-end look */
-    font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-    background-color: #f8fafc;
-    color: #1e293b;
-    line-height: 1.5;
-    -webkit-font-smoothing: antialiased;
+    font-family: 'Roboto', sans-serif;
+    background-color: #f4f4f4;
+    color: #333;
+    line-height: 1.6;
 }
 
-/* 🔹 Animated Background Wrapper */
 .app-wrapper {
     display: flex;
     justify-content: center;
     align-items: center;
     min-height: 100vh;
     padding: 20px;
-    /* Upgraded Gradient: Deep Indigo to soft Purple */
-    background: linear-gradient(135deg, #4f46e5 0%, #7c3aed 100%);
-    animation: fadeIn 0.8s ease-in-out;
+    background: linear-gradient(135deg, #6e8efb, #a777e3);
 }
 
-/* 🔹 Global Headers */
-h1, h2, h3 {
-    font-weight: 700;
-    letter-spacing: -0.025em;
-    margin-top: 0;
+/* Optional: Add some more global styles for typography */
+h1, h2, h3, h4, h5, h6 {
+    font-weight: 400;
 }
 
-/* 🔹 Smooth Entrance Animation */
-@keyframes fadeIn {
-    from {
-        opacity: 0;
-        transform: translateY(10px);
-    }
-    to {
-        opacity: 1;
-        transform: translateY(0);
-    }
+a {
+    color: #333;
+    text-decoration: none;
 }
 
-/* 🔹 Code & Technical Snippets */
+a:hover {
+    color: #6e8efb;
+}
+
+/* Styling for any code elements */
 code {
-    background-color: #f1f5f9;
-    color: #4f46e5;
-    padding: 2px 6px;
-    border-radius: 6px;
-    font-family: 'Fira Code', 'Courier New', monospace;
-    font-size: 0.9em;
-    border: 1px solid #e2e8f0;
+    background-color: #eee;
+    padding: 2px 4px;
+    border-radius: 4px;
+    font-family: 'Courier New', monospace;
 }
 
-/* 🔹 Custom Scrollbar (Optional but looks great) */
-::-webkit-scrollbar {
-    width: 8px;
-}
-::-webkit-scrollbar-track {
-    background: #f1f5f9;
-}
-::-webkit-scrollbar-thumb {
-    background: #cbd5e1;
-    border-radius: 10px;
-}
-::-webkit-scrollbar-thumb:hover {
-    background: #94a3b8;
-}

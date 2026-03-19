@@ -1,9 +1,5 @@
 const mongoose = require("mongoose");
 
-/**
- * 🔹 TASK SCHEMA 🔹
- * Designed for High Performance & Soft Deletes
- */
 const taskSchema = new mongoose.Schema(
   {
     title: {
@@ -12,46 +8,54 @@ const taskSchema = new mongoose.Schema(
       trim: true,
       minlength: [3, "Title must be at least 3 characters"],
       maxlength: [150, "Title cannot exceed 150 characters"],
-      index: true, // Speeds up searches by title
     },
+
     description: {
       type: String,
       trim: true,
       maxlength: [1000, "Description too long"],
       default: "",
     },
+
     completed: {
       type: Boolean,
       default: false,
     },
+
     status: {
       type: String,
       enum: ["pending", "in-progress", "completed"],
       default: "pending",
     },
+
     priority: {
       type: String,
       enum: ["low", "medium", "high"],
       default: "medium",
     },
+
     dueDate: {
       type: Date,
     },
-    tags: [{ type: String, trim: true }],
 
-    // 🔹 Ownership (For future Azure AD/Auth integration)
+    tags: [
+      {
+        type: String,
+        trim: true,
+      },
+    ],
+
     user: {
       type: mongoose.Schema.Types.ObjectId,
       ref: "User",
-      required: false,
+      required: false, // later we make it required after auth
     },
 
-    // 🔹 Soft Delete logic (Keeps data safe in DB but hidden from App)
     isDeleted: {
       type: Boolean,
-      default: false,
-      select: false, // Hidden by default from API results
+      default: false, // soft delete
     },
+
     completedAt: {
       type: Date,
     },
@@ -59,46 +63,64 @@ const taskSchema = new mongoose.Schema(
   {
     timestamps: true,
     versionKey: false,
-    toJSON: { virtuals: true }, // Ensures "isOverdue" shows up in the browser
-    toObject: { virtuals: true }
   }
 );
 
-/* -------------------------------------------------------------------------- */
-/* 🔥 PERFORMANCE                              */
-/* -------------------------------------------------------------------------- */
-
-// Indexes make searching 100x faster when your DB grows
-taskSchema.index({ status: 1, isDeleted: 1 });
+//
+// 🔥 INDEXES (performance)
+//
+taskSchema.index({ user: 1 });
+taskSchema.index({ status: 1 });
+taskSchema.index({ priority: 1 });
 taskSchema.index({ dueDate: 1 });
+taskSchema.index({ isDeleted: 1 });
 
-/* -------------------------------------------------------------------------- */
-/* 🔥 SMART LOGIC                               */
-/* -------------------------------------------------------------------------- */
+//
+// 🔥 MIDDLEWARE (HOOKS)
+//
 
-// 🔹 MIDDLEWARE: Runs automatically before every "save"
+// Before saving
 taskSchema.pre("save", function (next) {
-  // 1. Sync completed date
+  // Auto-set completedAt
   if (this.isModified("completed")) {
     this.completedAt = this.completed ? new Date() : null;
-    if (this.completed) this.status = "completed";
   }
+
+  // Sync status with completed
+  if (this.completed) {
+    this.status = "completed";
+  }
+
   next();
 });
 
-// 🔹 VIRTUALS: Computed values that don't take up space in the DB
-taskSchema.virtual("isOverdue").get(function () {
-  return this.dueDate && this.dueDate < new Date() && !this.completed;
-});
+//
+// 🔥 STATIC METHODS (model-level logic)
+//
 
-/* -------------------------------------------------------------------------- */
-/* 🔥 HELPER METHODS                            */
-/* -------------------------------------------------------------------------- */
+// Get all active tasks (not deleted)
+taskSchema.statics.getActiveTasks = function (userId) {
+  return this.find({ user: userId, isDeleted: false });
+};
 
-// Mark task as done
+// Get overdue tasks
+taskSchema.statics.getOverdueTasks = function () {
+  return this.find({
+    dueDate: { $lt: new Date() },
+    completed: false,
+    isDeleted: false,
+  });
+};
+
+//
+// 🔥 INSTANCE METHODS (document-level logic)
+//
+
+// Mark task as completed
 taskSchema.methods.markAsCompleted = function () {
   this.completed = true;
   this.status = "completed";
+  this.completedAt = new Date();
   return this.save();
 };
 
@@ -106,6 +128,35 @@ taskSchema.methods.markAsCompleted = function () {
 taskSchema.methods.softDelete = function () {
   this.isDeleted = true;
   return this.save();
+};
+
+//
+// 🔥 VIRTUALS (computed fields)
+//
+
+// Check if overdue
+taskSchema.virtual("isOverdue").get(function () {
+  return (
+    this.dueDate &&
+    this.dueDate < new Date() &&
+    !this.completed
+  );
+});
+
+// Format response (hide internal fields)
+taskSchema.set("toJSON", {
+  virtuals: true,
+  transform: function (doc, ret) {
+    delete ret.isDeleted;
+    return ret;
+  },
+});
+
+//
+// 🔥 QUERY HELPER
+//
+taskSchema.query.notDeleted = function () {
+  return this.where({ isDeleted: false });
 };
 
 module.exports = mongoose.model("Task", taskSchema);

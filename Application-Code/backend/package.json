@@ -1,27 +1,17 @@
 {
-  "name": "todo-backend",
-  "version": "1.1.0",
-  "description": "Professional MERN Backend for Azure Deployment",
+  "name": "server",
+  "version": "1.0.0",
+  "description": "",
   "main": "index.js",
   "scripts": {
-    "start": "node index.js",
-    "dev": "nodemon index.js",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
-  "keywords": [
-    "mern",
-    "azure",
-    "aks",
-    "todo-app"
-  ],
-  "author": "Abdo",
+  "keywords": [],
+  "author": "",
   "license": "ISC",
   "dependencies": {
     "cors": "^2.8.5",
-    "express": "^4.18.2",
-    "mongoose": "^7.0.0"
-  },
-  "devDependencies": {
-    "nodemon": "^3.0.1"
+    "express": "^4.17.1",
+    "mongoose": "^6.13.6"
   }
 }
