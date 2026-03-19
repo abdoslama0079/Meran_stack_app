@@ -1,193 +1,88 @@
 import { Component } from "react";
 import {
-  addTask,
-  getTasks,
-  updateTask,
-  deleteTask,
-  markTaskCompleted,
-  addTagToTask,
-  getOverdueTasks,
+    addTask,
+    getTasks,
+    updateTask,
+    deleteTask,
 } from "./services/taskServices";
-import { Paper, Button, Checkbox, Typography, TextField } from "@material-ui/core";
-import "./App.css";
 
 class Tasks extends Component {
-  state = {
-    tasks: [],
-    currentTask: "",
-    loading: true,
-    error: null,
-    filter: "",
-  };
+    state = { tasks: [], currentTask: "" };
 
-  async componentDidMount() {
-    try {
-      const { data } = await getTasks();
-      this.setState({ tasks: data.data || [], loading: false });
-    } catch (error) {
-      console.error(error);
-      this.setState({ error: "Failed to load tasks", loading: false });
-    }
-  }
-
-  handleChange = ({ currentTarget: input }) => {
-    this.setState({ currentTask: input.value });
-  };
-
-  handleSubmit = async (e) => {
-    e.preventDefault();
-    const originalTasks = this.state.tasks;
-    try {
-      const { data } = await addTask({ title: this.state.currentTask });
-      const tasks = [...originalTasks, data];
-      this.setState({ tasks, currentTask: "" });
-    } catch (error) {
-      console.error(error);
-      this.setState({ error: "Failed to add task" });
-    }
-  };
-
-  handleUpdate = async (taskId) => {
-    const originalTasks = this.state.tasks;
-    try {
-      const tasks = [...originalTasks];
-      const index = tasks.findIndex((task) => task._id === taskId);
-      tasks[index] = { ...tasks[index], completed: !tasks[index].completed };
-      this.setState({ tasks });
-      await updateTask(taskId, { completed: tasks[index].completed });
-    } catch (error) {
-      this.setState({ tasks: originalTasks, error: "Failed to update task" });
-    }
-  };
-
-  handleDelete = async (taskId) => {
-    const originalTasks = this.state.tasks;
-    try {
-      const tasks = originalTasks.filter((task) => task._id !== taskId);
-      this.setState({ tasks });
-      await deleteTask(taskId);
-    } catch (error) {
-      this.setState({ tasks: originalTasks, error: "Failed to delete task" });
-    }
-  };
-
-  handleFilterChange = ({ currentTarget: input }) => {
-    this.setState({ filter: input.value });
-  };
-
-  renderTaskCard(task) {
-    return (
-      <Paper key={task._id} className="task-item fade-in" elevation={3}>
-        <Checkbox
-          checked={task.completed}
-          onClick={() => this.handleUpdate(task._id)}
-          color="primary"
-        />
-        <div className={task.completed ? "task-text completed" : "task-text"}>
-          <Typography variant="subtitle1">{task.title}</Typography>
-          {task.description && (
-            <Typography variant="body2" color="textSecondary">
-              {task.description}
-            </Typography>
-          )}
-          {task.priority && (
-            <span className={`priority-${task.priority}`}>
-              {task.priority.toUpperCase()}
-            </span>
-          )}
-          {task.dueDate && (
-            <Typography variant="caption" color="textSecondary">
-              Due: {new Date(task.dueDate).toLocaleDateString()}
-            </Typography>
-          )}
-        </div>
-        <Button
-          onClick={() => this.handleDelete(task._id)}
-          color="secondary"
-          variant="outlined"
-          className="delete-task-btn"
-        >
-          Delete
-        </Button>
-      </Paper>
-    );
-  }
-
-  render() {
-    const { tasks, currentTask, loading, error, filter } = this.state;
-
-    if (loading) {
-      return (
-        <div className="main-content">
-          <Typography variant="h6">Loading tasks...</Typography>
-        </div>
-      );
+    // 🔹 Load tasks when the page opens
+    async componentDidMount() {
+        try {
+            const { data } = await getTasks();
+            // In our Pretty Backend, data is wrapped in 'data.data'
+            this.setState({ tasks: data.data || data });
+        } catch (error) {
+            console.error("❌ Failed to fetch tasks:", error);
+        }
     }
 
-    const filteredTasks = tasks.filter((task) =>
-      task.title.toLowerCase().includes(filter.toLowerCase())
-    );
+    // 🔹 Handle typing in the input box
+    handleChange = ({ currentTarget: input }) => {
+        this.setState({ currentTask: input.value });
+    };
 
-    return (
-      <div className="main-content">
-        <Paper elevation={6} className="todo-container">
-          {/* Task Form */}
-          <form onSubmit={this.handleSubmit} className="task-form">
-            <TextField
-              variant="outlined"
-              size="small"
-              className="task-input"
-              value={currentTask}
-              required
-              onChange={this.handleChange}
-              placeholder="Add New TO-DO"
-            />
-            <Button
-              className="add-task-btn"
-              color="primary"
-              variant="contained"
-              type="submit"
-            >
-              Add Task
-            </Button>
-          </form>
+    // 🔹 Create a new task
+    handleSubmit = async (e) => {
+        e.preventDefault();
+        const { tasks, currentTask } = this.state;
 
-          {/* Filter */}
-          <TextField
-            variant="outlined"
-            size="small"
-            className="task-input mb-4"
-            value={filter}
-            onChange={this.handleFilterChange}
-            placeholder="Search tasks..."
-          />
+        try {
+            // FIX: Changed 'task' to 'title' to match our Backend Schema
+            const { data } = await addTask({
+                title: currentTask,
+                createdBy: "Abdo" // Required by our Pretty Schema
+            });
 
-          {/* Error */}
-          {error && (
-            <Typography variant="body2" color="error">
-              {error}
-            </Typography>
-          )}
+            // Add the new task to the list immediately
+            this.setState({
+                tasks: [...tasks, data.data],
+                currentTask: ""
+            });
+            console.log("✅ Task added successfully");
+        } catch (error) {
+            console.error("❌ Error adding task:", error);
+        }
+    };
 
-          {/* Task List */}
-          <div className="tasks-list">
-            {filteredTasks.length === 0 ? (
-              <Typography
-                variant="body1"
-                color="textSecondary"
-                align="center"
-                style={{ marginTop: "20px" }}
-              >
-                No tasks found. Try adding one!
-              </Typography>
-            ) : (
-              filteredTasks.map((task) => this.renderTaskCard(task))
-            )}
-          </div>
-        </Paper>
-      </div>
-    );
-  }
+    // 🔹 Toggle Complete/Incomplete
+    handleUpdate = async (id) => {
+        const originalTasks = [...this.state.tasks];
+        try {
+            const tasks = [...originalTasks];
+            const index = tasks.findIndex((t) => t._id === id);
+
+            // Toggle the 'completed' status
+            tasks[index] = { ...tasks[index], completed: !tasks[index].completed };
+            this.setState({ tasks });
+
+            // Sync with Backend
+            await updateTask(id, { completed: tasks[index].completed });
+        } catch (error) {
+            // If server fails, revert back to the old state
+            this.setState({ tasks: originalTasks });
+            console.error("❌ Update failed, reverting state:", error);
+        }
+    };
+
+    // 🔹 Delete a task
+    handleDelete = async (id) => {
+        const originalTasks = [...this.state.tasks];
+        try {
+            const tasks = originalTasks.filter((t) => t._id !== id);
+            this.setState({ tasks });
+
+            // Sync with Backend
+            await deleteTask(id);
+        } catch (error) {
+            // If server fails, bring the task back
+            this.setState({ tasks: originalTasks });
+            console.error("❌ Delete failed, reverting state:", error);
+        }
+    };
 }
 
 export default Tasks;

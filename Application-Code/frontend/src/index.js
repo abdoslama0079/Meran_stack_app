@@ -3,28 +3,26 @@ import ReactDOM from "react-dom";
 import "./index.css";
 import App from "./App";
 
-// 🔹 Material-UI Theme
+// 🔹 Material-UI Theme Tools
 import { ThemeProvider, createTheme } from "@material-ui/core/styles";
 import CssBaseline from "@material-ui/core/CssBaseline";
 
-// 🔹 Error Boundary
+/**
+ * 🔹 Error Boundary
+ * This prevents the whole app from "disappearing" if
+ * the backend sends bad data.
+ */
 class ErrorBoundary extends React.Component {
-  constructor(props) {
-    super(props);
-    this.state = { hasError: false };
-  }
-  static getDerivedStateFromError() {
-    return { hasError: true };
-  }
-  componentDidCatch(error, errorInfo) {
-    console.error("❌ Error caught by boundary:", error, errorInfo);
-  }
+  state = { hasError: false };
+  static getDerivedStateFromError() { return { hasError: true }; }
   render() {
     if (this.state.hasError) {
       return (
         <div className="app-wrapper">
-          <h1>Something went wrong 😢</h1>
-          <p>Please refresh the page or try again later.</p>
+          <div style={{ color: 'white', textAlign: 'center' }}>
+            <h1>Something went wrong 😢</h1>
+            <p>Please refresh the page or check your VM connection.</p>
+          </div>
         </div>
       );
     }
@@ -32,43 +30,31 @@ class ErrorBoundary extends React.Component {
   }
 }
 
-// 🔹 Loading Splash
-function SplashScreen() {
-  return (
-    <div className="app-wrapper fade-in">
-      <h1 className="text-center">✨ Loading My To-Do App...</h1>
-    </div>
-  );
-}
-
-// 🔹 Theme setup
+// 🔹 Professional Theme Configuration
 const theme = createTheme({
   palette: {
     primary: {
-      main: "#4f46e5",
+      main: "#4f46e5", // Match our Indigo CSS
     },
     secondary: {
-      main: "#ef4444",
+      main: "#ef4444", // Clean Red for Delete buttons
     },
     background: {
-      default: "#f4f4f4",
+      default: "#f8fafc",
     },
   },
   typography: {
-    fontFamily: "Inter, Roboto, sans-serif",
-    h1: { fontWeight: 700 },
-    h6: { fontWeight: 600 },
+    fontFamily: "'Inter', sans-serif",
   },
 });
 
-// 🔹 Root render
 ReactDOM.render(
   <React.StrictMode>
     <ThemeProvider theme={theme}>
+      {/* CssBaseline fixes browser differences in spacing */}
       <CssBaseline />
       <ErrorBoundary>
         <div className="app-wrapper">
-          {/* Splash screen could be conditionally rendered here */}
           <App />
         </div>
       </ErrorBoundary>

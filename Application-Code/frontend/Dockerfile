@@ -1,12 +1,21 @@
-FROM node:18-alpine AS build
-WORKDIR /app
-COPY package*.json ./
-RUN npm install
-COPY . .
-RUN npm run build
+FROM node:18-alpine
 
-# Serve the App
-FROM nginx:stable-alpine
-COPY --from=build /app/build /usr/share/nginx/html
-EXPOSE 80
-CMD ["nginx", "-g", "daemon off;"]
+WORKDIR /usr/src/app
+
+# 🔹 Copy only the package files first (This makes builds 10x faster!)
+COPY package*.json ./
+
+# 🔹 Install only the essential libraries for production
+RUN npm install --omit=dev
+
+# 🔹 Copy the rest of your pretty code
+COPY . .
+
+# 🔹 Security: Don't run the app as 'root'
+USER node
+
+ENV NODE_ENV=production
+ENV PORT=3500
+EXPOSE 3500
+
+CMD ["node", "index.js"]

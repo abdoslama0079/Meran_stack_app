@@ -1,70 +1,73 @@
-require("dotenv").config(); // load environment variables
 const express = require("express");
 const cors = require("cors");
-const mongoose = require("mongoose");
-const morgan = require("morgan"); // logging middleware
-const helmet = require("helmet"); // security headers
-const tasks = require("./routes/tasks");
+const mongoose = require('mongoose');
+
+// 🔹 Import Local Modules
 const connection = require("./db");
+const tasks = require("./routes/tasks");
 
+// 🔹 Initialize App
 const app = express();
+const port = process.env.PORT || 3500;
 
-// 🔹 Connect to DB
+// 🔹 Connect to MongoDB
 connection();
 
-// 🔹 Middleware
-app.use(express.json());
-app.use(cors());
-app.use(morgan("dev")); // logs requests
-app.use(helmet()); // adds security headers
+/* -------------------------------------------------------------------------- */
+/* 🛠️ MIDDLEWARE                                                              */
+/* -------------------------------------------------------------------------- */
+app.use(express.json()); // Allows the API to read JSON data
+app.use(cors());         // Allows your Frontend to talk to the Backend
 
-// 🔹 Health check endpoints
-app.get("/healthz", (req, res) => {
-  res.status(200).send("Healthy");
+/* -------------------------------------------------------------------------- */
+/* 🏥 KUBERNETES & AZURE HEALTH CHECKS                                        */
+/* -------------------------------------------------------------------------- */
+
+// 1. Health: Is the server alive?
+app.get('/healthz', (req, res) => res.status(200).send('✅ Server is Alive'));
+
+// 2. Ready: Is the Database connected and ready for traffic?
+app.get('/ready', (req, res) => {
+    const isDbConnected = mongoose.connection.readyState === 1;
+    if (isDbConnected) {
+        res.status(200).send('✅ Database Ready');
+    } else {
+        res.status(503).send('❌ Database Not Connected');
+    }
 });
 
-let lastReadyState = null;
-app.get("/ready", (req, res) => {
-  const isDbConnected = mongoose.connection.readyState === 1;
-  if (isDbConnected !== lastReadyState) {
-    console.log(`Database readyState: ${mongoose.connection.readyState}`);
-    lastReadyState = isDbConnected;
-  }
+// 3. Started: Has the app finished booting up?
+app.get('/started', (req, res) => res.status(200).send('✅ App Started'));
 
-  if (isDbConnected) {
-    res.status(200).send("Ready");
-  } else {
-    res.status(503).send("Not Ready");
-  }
-});
-
-app.get("/started", (req, res) => {
-  res.status(200).send("Started");
-});
-
-// 🔹 Routes
+/* -------------------------------------------------------------------------- */
+/* 📝 ROUTES                                                                  */
+/* -------------------------------------------------------------------------- */
 app.use("/api/tasks", tasks);
 
-// 🔹 Global error handler
-app.use((err, req, res, next) => {
-  console.error("❌ Error:", err.message);
-  res.status(err.status || 500).json({
-    success: false,
-    message: err.message || "Internal Server Error",
-  });
+// Welcome Route (Great for testing your VM IP in the browser)
+app.get("/", (req, res) => {
+    res.send("<h1>🚀 Welcome to the To-Do API</h1><p>Running on Port " + port + "</p>");
 });
 
-// 🔹 Graceful shutdown
-const port = process.env.PORT || 3500;
-const server = app.listen(port, () =>
-  console.log(`🚀 Server running on port ${port}...`)
-);
+/* -------------------------------------------------------------------------- */
+/* 🛡️ GLOBAL ERROR HANDLER                                                    */
+/* -------------------------------------------------------------------------- */
+app.use((err, req, res, next) => {
+    console.error("❌ Unexpected Error:", err.stack);
+    res.status(500).json({
+        success: false,
+        message: "Something went wrong on our end! 😢",
+        error: process.env.NODE_ENV === 'production' ? null : err.message
+    });
+});
 
-process.on("SIGINT", async () => {
-  console.log("🛑 Shutting down gracefully...");
-  await mongoose.connection.close();
-  server.close(() => {
-    console.log("✅ Server closed");
-    process.exit(0);
-  });
+/* -------------------------------------------------------------------------- */
+/* 🚀 SERVER STARTUP                                                          */
+/* -------------------------------------------------------------------------- */
+app.listen(port, () => {
+    console.log(`
+    🚀 Backend is "Pretty" and Ready!
+    📡 Listening on Port: ${port}
+    🔗 Local Health: http://localhost:${port}/healthz
+    `);
 });

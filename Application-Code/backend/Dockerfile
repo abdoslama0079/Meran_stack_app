@@ -4,7 +4,8 @@ WORKDIR /usr/src/app
 
 COPY package*.json ./
 
-RUN npm ci --only=production
+# 🔹 Install only production dependencies (no test/dev tools)
+RUN npm install --omit=dev
 
 COPY . .
 

@@ -4,136 +4,40 @@
     <meta charset="utf-8" />
     <link rel="icon" href="%PUBLIC_URL%/favicon.ico" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <meta name="theme-color" content="#4f46e5" />
-    <meta name="description" content="A modern TO-DO application" />
-
-    <!-- Apple icons -->
+    <meta name="theme-color" content="#000000" />
+    <meta
+      name="description"
+      content="TO-DO application"
+    />
     <link rel="apple-touch-icon" href="%PUBLIC_URL%/logo192.png" />
-
-    <!-- Manifest -->
+    <!--
+      manifest.json provides metadata used when your web app is installed on a
+      user's mobile device or desktop. See https://developers.google.com/web/fundamentals/web-app-manifest/
+    -->
     <link rel="manifest" href="%PUBLIC_URL%/manifest.json" />
+    <!--
+      Notice the use of %PUBLIC_URL% in the tags above.
+      It will be replaced with the URL of the `public` folder during the build.
+      Only files inside the `public` folder can be referenced from the HTML.
 
-    <!-- Google Fonts -->
-    <link
-      href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap"
-      rel="stylesheet"
-    />
-
-    <!-- TailwindCSS CDN -->
-    <script src="https://cdn.tailwindcss.com"></script>
-
-    <!-- Font Awesome -->
-    <link
-      rel="stylesheet"
-      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css"
-      crossorigin="anonymous"
-      referrerpolicy="no-referrer"
-    />
-
-    <title>✨ TO-DO App</title>
+      Unlike "/favicon.ico" or "favicon.ico", "%PUBLIC_URL%/favicon.ico" will
+      work correctly both with client-side routing and a non-root public URL.
+      Learn how to configure a non-root public URL by running `npm run build`.
+    -->
+    <title>TO-DO App</title>
   </head>
-  <body class="bg-gray-100 text-gray-900 font-inter">
+  <body>
     <noscript>You need to enable JavaScript to run this app.</noscript>
     <div id="root"></div>
+    <!--
+      This HTML file is a template.
+      If you open it directly in the browser, you will see an empty page.
 
-    <!-- Hero Section -->
-    <section
-      class="relative bg-cover bg-center h-screen"
-      style="background-image: url('https://images.unsplash.com/photo-1508780709619-79562169bc64');"
-    >
-      <div class="absolute inset-0 bg-black bg-opacity-50"></div>
-      <div
-        class="relative z-10 flex flex-col items-center justify-center h-full text-center text-white"
-      >
-        <h1 class="text-5xl font-bold mb-4">Organize Your Life</h1>
-        <p class="text-xl mb-6 max-w-2xl">
-          A modern TO-DO app to keep track of tasks, deadlines, and priorities.
-        </p>
-        <a
-          href="#features"
-          class="bg-indigo-600 hover:bg-indigo-800 px-6 py-3 rounded-lg text-lg font-semibold transition"
-        >
-          Get Started
-        </a>
-      </div>
-    </section>
+      You can add webfonts, meta tags, or analytics to this file.
+      The build step will place the bundled scripts into the <body> tag.
 
-    <!-- Features Section -->
-    <section id="features" class="py-16 bg-white">
-      <div class="container mx-auto px-6">
-        <h2 class="text-3xl font-bold text-center mb-12">Features</h2>
-        <div class="grid md:grid-cols-3 gap-12">
-          <div class="text-center">
-            <i class="fas fa-check-circle text-indigo-600 text-5xl mb-4"></i>
-            <h3 class="text-xl font-semibold mb-2">Task Management</h3>
-            <p class="text-gray-600">
-              Create, update, and organize tasks with ease.
-            </p>
-          </div>
-          <div class="text-center">
-            <i class="fas fa-bell text-indigo-600 text-5xl mb-4"></i>
-            <h3 class="text-xl font-semibold mb-2">Reminders</h3>
-            <p class="text-gray-600">
-              Set reminders to never miss a deadline.
-            </p>
-          </div>
-          <div class="text-center">
-            <i class="fas fa-chart-line text-indigo-600 text-5xl mb-4"></i>
-            <h3 class="text-xl font-semibold mb-2">Statistics</h3>
-            <p class="text-gray-600">
-              Track your progress with insightful stats.
-            </p>
-          </div>
-        </div>
-      </div>
-    </section>
-
-    <!-- Gallery Section -->
-    <section class="py-16 bg-gray-50">
-      <div class="container mx-auto px-6">
-        <h2 class="text-3xl font-bold text-center mb-12">Gallery</h2>
-        <div class="grid md:grid-cols-3 gap-6">
-          <img
-            src="https://images.unsplash.com/photo-1519389950473-47ba0277781c"
-            alt="Workspace"
-            class="rounded-lg shadow-lg"
-          />
-          <img
-            src="https://images.unsplash.com/photo-1522202176988-66273c2fd55f"
-            alt="Planning"
-            class="rounded-lg shadow-lg"
-          />
-          <img
-            src="https://images.unsplash.com/photo-1504691342899-8d1d1f1d1f1d"
-            alt="Productivity"
-            class="rounded-lg shadow-lg"
-          />
-        </div>
-      </div>
-    </section>
-
-    <!-- Call to Action -->
-    <section class="py-16 bg-indigo-600 text-white text-center">
-      <h2 class="text-4xl font-bold mb-4">Ready to boost productivity?</h2>
-      <p class="text-lg mb-6">
-        Start using TO-DO App today and take control of your tasks.
-      </p>
-      <a
-        href="#"
-        class="bg-white text-indigo-600 px-6 py-3 rounded-lg font-semibold hover:bg-gray-200 transition"
-      >
-        Sign Up Now
-      </a>
-    </section>
-
-    <!-- Footer -->
-    <footer class="bg-gray-900 text-gray-400 py-6 text-center">
-      <p>© 2026 TO-DO App. Built with ❤️ by Abdelrahman</p>
-      <div class="mt-4 space-x-4">
-        <a href="#" class="hover:text-white"><i class="fab fa-facebook"></i></a>
-        <a href="#" class="hover:text-white"><i class="fab fa-twitter"></i></a>
-        <a href="#" class="hover:text-white"><i class="fab fa-github"></i></a>
-      </div>
-    </footer>
+      To begin the development, run `npm start` or `yarn start`.
+      To create a production bundle, use `npm run build` or `yarn build`.
+    -->
   </body>
 </html>
