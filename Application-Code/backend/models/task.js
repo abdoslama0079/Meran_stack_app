@@ -19,19 +19,18 @@ const taskSchema = new mongoose.Schema(
       type: Boolean,
       default: false,
     },
+    isDeleted: {
+      type: Boolean,
+      default: false,
+      select: false, // Keep this hidden from standard API responses
+    },
     priority: {
       type: String,
-      enum: ["low", "medium", "high", "urgent"], // added "urgent"
+      enum: ["low", "medium", "high", "urgent"],
       default: "medium",
     },
     dueDate: {
       type: Date,
-      validate: {
-        validator: function (value) {
-          return value > Date.now();
-        },
-        message: "Due date must be in the future",
-      },
     },
     tags: [
       {
@@ -41,18 +40,8 @@ const taskSchema = new mongoose.Schema(
       },
     ],
     createdBy: {
-      type: mongoose.Schema.Types.ObjectId,
-      ref: "User",
+      type: String, // Changed to String to simplify initial testing, or use mongoose.Schema.Types.ObjectId
       required: true,
-    },
-    reminder: {
-      type: Date,
-      validate: {
-        validator: function (value) {
-          return !this.dueDate || value < this.dueDate;
-        },
-        message: "Reminder must be before the due date",
-      },
     },
     status: {
       type: String,
@@ -66,51 +55,14 @@ const taskSchema = new mongoose.Schema(
   }
 );
 
-// 🔹 Indexes
+// Indexes for high-performance searching
 taskSchema.index({ title: "text", description: "text" });
-taskSchema.index({ dueDate: 1, priority: 1 });
-taskSchema.index({ status: 1 });
+taskSchema.index({ isDeleted: 1, status: 1 });
 
-// 🔹 Instance methods
 taskSchema.methods.markCompleted = function () {
   this.completed = true;
   this.status = "completed";
   return this.save();
 };
-
-taskSchema.methods.addTag = function (tag) {
-  if (!this.tags.includes(tag.toLowerCase())) {
-    this.tags.push(tag.toLowerCase());
-  }
-  return this.save();
-};
-
-// 🔹 Static methods
-taskSchema.statics.findByTag = function (tag) {
-  return this.find({ tags: tag.toLowerCase() });
-};
-
-taskSchema.statics.findOverdue = function () {
-  return this.find({ dueDate: { $lt: Date.now() }, completed: false });
-};
-
-// 🔹 Middleware hooks
-taskSchema.pre("save", function (next) {
-  if (!this.title) {
-    this.title = "Untitled Task";
-  }
-  if (this.completed) {
-    this.status = "completed";
-  }
-  next();
-});
-
-taskSchema.post("save", function (doc) {
-  console.log(`✅ Task "${doc.title}" saved at ${doc.createdAt}`);
-});
-
-taskSchema.post("remove", function (doc) {
-  console.log(`🗑️ Task "${doc.title}" was deleted`);
-});
 
 module.exports = mongoose.model("Task", taskSchema);

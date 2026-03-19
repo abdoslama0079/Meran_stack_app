@@ -1,0 +1,86 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: api
+  namespace: mern-prod
+  labels:
+    role: api
+    env: demo
+spec:
+  replicas: 2
+  strategy:
+    type: RollingUpdate
+    maxSurge: 1
+    maxUnavailable: 25%
+  selector:
+    matchLabels:
+      role: api
+  template:
+    metadata:
+      labels:
+        role: api
+        azure.workload.identity/use: "true"
+    spec:
+      serviceAccountName: mern-sa
+      containers:
+        - name: api
+          image: meranstackpro7721.azurecr.io/mern-backend:__IMAGE__
+          env:
+            - name: MONGO_CONN_STR
+              value: mongodb://mongodb-svc:27017/todo?directConnection=true
+            - name: MONGO_USERNAME
+              valueFrom:
+                secretKeyRef:
+                  name: mongo-sec
+                  key: username
+            - name: MONGO_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: mongo-sec
+                  key: password
+          ports:
+            - containerPort: 3500
+          volumeMounts:
+            - name: secrets-store-inline
+              mountPath: "/mnt/secrets-store"
+              readOnly: true
+          livenessProbe:
+            httpGet:
+              path: /healthz
+              port: 3500
+            initialDelaySeconds: 2
+            periodSeconds: 5
+          readinessProbe:
+            httpGet:
+              path: /ready
+              port: 3500
+            initialDelaySeconds: 5
+            successThreshold: 1
+          startupProbe:
+            httpGet:
+              path: /started
+              port: 3500
+            initialDelaySeconds: 5
+            periodSeconds: 5
+            failureThreshold: 30
+      volumes:
+        - name: secrets-store-inline
+          csi:
+            driver: secrets-store.csi.k8s.io
+            readOnly: true
+            volumeAttributes:
+              secretProviderClass: "mern-kv-provider"
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: api
+  namespace: mern-prod
+spec:
+  type: ClusterIP
+  selector:
+    role: api
+  ports:
+    - port: 3500
+      targetPort: 3500
+      protocol: TCP

@@ -21,10 +21,10 @@ variable "kv_aks_id" {}
 
 variable "k8s_namespace" {
   type    = string
-  default = "meran-prod"
+  default = "mern-prod"
 }
 
 variable "k8s_service_account_name" {
   type    = string
-  default = "meran-sa"
+  default = "mern-sa"
 }
