@@ -11,11 +11,13 @@ class Tasks extends Component {
 
     async componentDidMount() {
         try {
-            const { data } = await getTasks();
-            this.setState({ tasks: data });
-        } catch (error) {
-            console.log(error);
-        }
+                const response = await getTasks();
+                // We access response.data (from Axios) 
+                // then .data again (because your API wraps the array in a "data" field)
+                this.setState({ tasks: response.data.data || [] }); 
+            } catch (error) {
+                console.log(error);
+            }
     }
 
     handleChange = ({ currentTarget: input }) => {
