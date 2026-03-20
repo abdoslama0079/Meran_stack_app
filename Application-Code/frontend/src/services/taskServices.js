@@ -1,5 +1,6 @@
 import axios from "axios";
 
+// This tells the app to use the network path that is already working
 const apiUrl = "/api/tasks"; 
 
 export function getTasks() {
