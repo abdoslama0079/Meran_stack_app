@@ -12,7 +12,6 @@ class Tasks extends Component {
     async componentDidMount() {
         try {
             const response = await getTasks();
-            // Digs into the backend response to find the list of tasks
             this.setState({ tasks: response.data.data || [] }); 
         } catch (error) {
             console.log(error);
@@ -27,14 +26,14 @@ class Tasks extends Component {
         e.preventDefault();
         const originalTasks = this.state.tasks;
         try {
-            // Changed 'task' to 'title' to match what your backend requires
+            // Sends 'title' to match backend requirements
             const response = await addTask({ title: this.state.currentTask });
             const newTask = response.data.data;
             const tasks = [...originalTasks];
             tasks.push(newTask);
             this.setState({ tasks, currentTask: "" });
         } catch (error) {
-            console.log(error);
+            console.log("Validation Error: Ensure text is at least 3 characters", error);
         }
     };
 
@@ -51,7 +50,6 @@ class Tasks extends Component {
             });
         } catch (error) {
             this.setState({ tasks: originalTasks });
-            console.log(error);
         }
     };
 
@@ -65,7 +63,6 @@ class Tasks extends Component {
             await deleteTask(currentTask);
         } catch (error) {
             this.setState({ tasks: originalTasks });
-            console.log(error);
         }
     };
 }
