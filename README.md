@@ -68,7 +68,7 @@ To manually trigger a refresh of the environment:
 
 kubectl rollout restart deployment frontend -n mern-prod
 kubectl rollout restart deployment api -n mern-prod
-
+```
 ---
 <img width="1599" height="750" alt="d1" src="https://github.com/user-attachments/assets/2351a60b-599a-4956-bb53-dfff530ee7d9" />
 <img width="1600" height="752" alt="image" src="https://github.com/user-attachments/assets/0b6b284e-3634-4308-b222-391c8ba5e83f" />
