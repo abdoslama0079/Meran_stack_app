@@ -24,7 +24,7 @@ spec:
       containers:
         - name: frontend
           # Update this to your FRONTEND image name in ACR
-          image: meranstackpro7721.azurecr.io/mern-app:8
+          image: meranstackpro7721.azurecr.io/mern-app:9
           imagePullPolicy: Always
           env:
             - name: REACT_APP_BACKEND_URL
