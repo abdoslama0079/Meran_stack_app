@@ -1,6 +1,6 @@
 import axios from "axios";
 
-// This tells the browser: "Stay on the current IP and just add /api/tasks"
+// FIXED: Hardcoding the relative path so the browser doesn't look for 'process'
 const apiUrl = "/api/tasks"; 
 
 export function getTasks() {
