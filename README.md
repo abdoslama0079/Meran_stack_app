@@ -1,4 +1,4 @@
-# 🚀 MERN Stack: DevSecOps & GitOps Pipeline
+# 🚀 MERN Stack: DevOps & GitOps Pipeline
 
 A production-grade **MERN** (MongoDB, Express, React, Node.js) application deployed with a "Security-First" mindset. This project demonstrates a complete automated lifecycle—from code quality and vulnerability scanning to self-healing Kubernetes orchestration.
 
