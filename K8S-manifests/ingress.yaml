@@ -3,15 +3,13 @@ kind: Ingress
 metadata:
   name: main-ingress
   namespace: mern-prod
-  annotations:
-    nginx.ingress.kubernetes.io/rewrite-target: /$1
-    nginx.ingress.kubernetes.io/use-regex: "true"
+  # 🔹 NO rewrite-target annotation here!
 spec:
   ingressClassName: webapprouting.kubernetes.azure.com
   rules:
     - http:
         paths:
-          - path: /api/?(.*)
+          - path: /api # 👈 This will now send "/api/tasks" directly to your code
             pathType: Prefix
             backend:
               service:
