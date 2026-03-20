@@ -65,5 +65,14 @@ The backend enforces strict data integrity. Tasks must be at least **3 character
 ### 📦 Manual Rollout
 To manually trigger a refresh of the environment:
 ```bash
+
+<img width="1599" height="750" alt="d1" src="https://github.com/user-attachments/assets/2351a60b-599a-4956-bb53-dfff530ee7d9" />
+<img width="1600" height="752" alt="image" src="https://github.com/user-attachments/assets/0b6b284e-3634-4308-b222-391c8ba5e83f" />
+<img width="1598" height="751" alt="image" src="https://github.com/user-attachments/assets/633e2b12-12f4-4938-8ce0-6ded06ce1ac9" />
+<img width="1600" height="751" alt="image" src="https://github.com/user-attachments/assets/08bf2c15-a17c-408b-b8d2-412b1beb3beb" />
+
+
+
+
 kubectl rollout restart deployment frontend -n mern-prod
 kubectl rollout restart deployment api -n mern-prod
