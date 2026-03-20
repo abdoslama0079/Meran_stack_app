@@ -1,6 +1,5 @@
 import axios from "axios";
 
-// This tells the browser to use the correct network path through your Ingress
 const apiUrl = "/api/tasks"; 
 
 export function getTasks() {
