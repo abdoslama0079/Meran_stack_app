@@ -50,7 +50,7 @@ class App extends Tasks {
                                 style={{ marginTop: '10px', height: '56px' }}
                                 fullWidth
                             >
-                                Create Task
+                                Add Task
                             </Button>
                         </form>
 
@@ -74,7 +74,10 @@ class App extends Tasks {
                                             </ListItemIcon>
                                             <ListItemText 
                                                 primary={task.title} 
-                                                style={{ textDecoration: task.completed ? 'line-through' : 'none', color: task.completed ? '#aaa' : '#333' }}
+                                                style={{ 
+                                                    textDecoration: task.completed ? 'line-through' : 'none', 
+                                                    color: task.completed ? '#aaa' : '#333' 
+                                                }}
                                             />
                                             <ListItemSecondaryAction>
                                                 <Button 
@@ -89,7 +92,7 @@ class App extends Tasks {
                                     ))
                                 ) : (
                                     <Box py={3} textAlign="center">
-                                        <Typography color="textSecondary">No tasks found.</Typography>
+                                        <Typography color="textSecondary">No tasks found. Start by adding one!</Typography>
                                     </Box>
                                 )}
                             </List>
