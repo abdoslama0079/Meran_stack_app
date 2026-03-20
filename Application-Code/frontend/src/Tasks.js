@@ -11,13 +11,12 @@ class Tasks extends Component {
 
     async componentDidMount() {
         try {
-                const response = await getTasks();
-                // We access response.data (from Axios) 
-                // then .data again (because your API wraps the array in a "data" field)
-                this.setState({ tasks: response.data.data || [] }); 
-            } catch (error) {
-                console.log(error);
-            }
+            const response = await getTasks();
+            // FIXED: Digging into response.data.data to get the actual array
+            this.setState({ tasks: response.data.data || [] }); 
+        } catch (error) {
+            console.log("Error fetching tasks:", error);
+        }
     }
 
     handleChange = ({ currentTarget: input }) => {
@@ -28,43 +27,49 @@ class Tasks extends Component {
         e.preventDefault();
         const originalTasks = this.state.tasks;
         try {
-            const { data } = await addTask({ task: this.state.currentTask });
-            const tasks = originalTasks;
-            tasks.push(data);
+            const response = await addTask({ task: this.state.currentTask });
+            
+            // FIXED: Extract the new task object from the nested response
+            const newTask = response.data.data;
+            
+            const tasks = [...originalTasks];
+            tasks.push(newTask);
             this.setState({ tasks, currentTask: "" });
         } catch (error) {
-            console.log(error);
+            console.log("Error adding task:", error);
         }
     };
 
-    handleUpdate = async (currentTask) => {
+    handleUpdate = async (currentTaskId) => {
         const originalTasks = this.state.tasks;
         try {
             const tasks = [...originalTasks];
-            const index = tasks.findIndex((task) => task._id === currentTask);
+            const index = tasks.findIndex((task) => task._id === currentTaskId);
             tasks[index] = { ...tasks[index] };
             tasks[index].completed = !tasks[index].completed;
+            
             this.setState({ tasks });
-            await updateTask(currentTask, {
+            
+            await updateTask(currentTaskId, {
                 completed: tasks[index].completed,
             });
         } catch (error) {
             this.setState({ tasks: originalTasks });
-            console.log(error);
+            console.log("Error updating task:", error);
         }
     };
 
-    handleDelete = async (currentTask) => {
+    handleDelete = async (currentTaskId) => {
         const originalTasks = this.state.tasks;
         try {
             const tasks = originalTasks.filter(
-                (task) => task._id !== currentTask
+                (task) => task._id !== currentTaskId
             );
             this.setState({ tasks });
-            await deleteTask(currentTask);
+            await deleteTask(currentTaskId);
         } catch (error) {
             this.setState({ tasks: originalTasks });
-            console.log(error);
+            console.log("Error deleting task:", error);
         }
     };
 }
