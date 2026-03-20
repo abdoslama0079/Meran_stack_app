@@ -1,116 +1,94 @@
-import React from "react";
-import Tasks from "./Tasks";
-import { 
-    Paper, 
-    TextField, 
-    Checkbox, 
-    Button, 
-    Typography, 
-    Container, 
-    IconButton, 
-    List, 
-    ListItem, 
-    ListItemText, 
-    ListItemIcon, 
-    ListItemSecondaryAction,
-    Divider,
-    Box
-} from "@material-ui/core";
-import { DeleteOutline, Add as AddIcon, AssignmentTurnedIn } from "@material-ui/icons";
-import "./App.css";
-
-class App extends Tasks {
-    render() {
-        // We use task.title because your backend requires 'title'
-        const { tasks, currentTask } = this.state;
-
-        return (
-            <Container maxWidth="sm" className="app-container">
-                <Paper elevation={4} className="todo-card">
-                    <Box p={4}>
-                        <Box display="flex" alignItems="center" mb={3} justifyContent="center">
-                            <AssignmentTurnedIn color="primary" style={{ fontSize: 40, marginRight: 10 }} />
-                            <Typography variant="h4" component="h1" className="app-title">
-                                Task Manager Pro
-                            </Typography>
-                        </Box>
-
-                        <form onSubmit={this.handleSubmit} className="task-form">
-                            <TextField
-                                variant="outlined"
-                                fullWidth
-                                label="What needs to be done?"
-                                helperText="Minimum 3 characters"
-                                value={currentTask}
-                                required
-                                onChange={this.handleChange}
-                                className="task-input"
-                            />
-                            <Button 
-                                type="submit" 
-                                variant="contained" 
-                                color="primary" 
-                                startIcon={<AddIcon />}
-                                className="add-btn"
-                                style={{ marginTop: '10px', height: '56px' }}
-                                fullWidth
-                            >
-                                Create Task
-                            </Button>
-                        </form>
-
-                        <Box mt={4}>
-                            <Typography variant="h6" gutterBottom>
-                                Your Tasks ({Array.isArray(tasks) ? tasks.length : 0})
-                            </Typography>
-                            <Divider />
-                            
-                            <List className="tasks-list">
-                                {Array.isArray(tasks) && tasks.length > 0 ? (
-                                    tasks.map((task) => (
-                                        <ListItem key={task._id} divider className="task-item">
-                                            <ListItemIcon>
-                                                <Checkbox
-                                                    edge="start"
-                                                    checked={task.completed}
-                                                    tabIndex={-1}
-                                                    disableRipple
-                                                    color="primary"
-                                                    onClick={() => this.handleUpdate(task._id)}
-                                                />
-                                            </ListItemIcon>
-                                            <ListItemText 
-                                                primary={task.title} // Matches backend schema
-                                                className={task.completed ? "task-text-completed" : ""}
-                                                style={{ textDecoration: task.completed ? 'line-through' : 'none', color: task.completed ? '#aaa' : '#333' }}
-                                            />
-                                            <ListItemSecondaryAction>
-                                                <IconButton 
-                                                    edge="end" 
-                                                    aria-label="delete" 
-                                                    onClick={() => this.handleDelete(task._id)}
-                                                    color="secondary"
-                                                >
-                                                    <DeleteOutline />
-                                                </IconButton>
-                                            </ListItemSecondaryAction>
-                                        </ListItem>
-                                    ))
-                                ) : (
-                                    <Box py={3} textAlign="center">
-                                        <Typography color="textSecondary">No tasks found. Start by adding one above!</Typography>
-                                    </Box>
-                                )}
-                            </List>
-                        </Box>
-                    </Box>
-                </Paper>
-                <Typography variant="caption" align="center" display="block" style={{ marginTop: 20, color: '#666' }}>
-                    Connected to: {window.location.hostname} | Env: Production
-                </Typography>
-            </Container>
-        );
-    }
+/* Professional MERN Stack Theme */
+body {
+    margin: 0;
+    padding: 0;
+    font-family: 'Roboto', sans-serif;
+    /* Professional blue-purple gradient background */
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    min-height: 100vh;
 }
 
-export default App;
+.app-container {
+    padding-top: 50px;
+    padding-bottom: 50px;
+}
+
+.todo-card {
+    border-radius: 15px !important; /* Rounded professional corners */
+    background-color: rgba(255, 255, 255, 0.95) !important;
+    backdrop-filter: blur(10px);
+    box-shadow: 0 10px 30px rgba(0,0,0,0.3) !important;
+}
+
+.app-title {
+    font-weight: 700 !important;
+    color: #4a148c;
+    letter-spacing: 1px;
+}
+
+/* Form Styling */
+.task-form {
+    display: flex;
+    flex-direction: column; /* Stacked for a cleaner mobile-pro look */
+    gap: 15px;
+    margin-bottom: 25px;
+}
+
+.task-input .MuiOutlinedInput-root {
+    background-color: #fcfcfc;
+}
+
+.add-btn {
+    font-weight: bold !important;
+    padding: 12px !important;
+    text-transform: none !important;
+    font-size: 1.1rem !important;
+    transition: all 0.3s ease !important;
+}
+
+.add-btn:hover {
+    background-color: #311b92 !important;
+    transform: translateY(-2px);
+    box-shadow: 0 5px 15px rgba(0,0,0,0.2) !important;
+}
+
+/* Tasks List Styling */
+.tasks-list {
+    max-height: 400px;
+    overflow-y: auto; /* Scrollable if you have many tasks */
+    padding-right: 5px;
+}
+
+/* Custom scrollbar for pro look */
+.tasks-list::-webkit-scrollbar {
+    width: 6px;
+}
+.tasks-list::-webkit-scrollbar-thumb {
+    background: #ccc;
+    border-radius: 10px;
+}
+
+.task-item {
+    transition: background-color 0.2s ease;
+    border-radius: 8px !important;
+    margin-bottom: 8px !important;
+}
+
+.task-item:hover {
+    background-color: #f5f5f5;
+}
+
+.task-text-completed {
+    font-style: italic;
+    transition: all 0.3s ease;
+}
+
+/* Animation for adding/removing items */
+@keyframes fadeIn {
+    from { opacity: 0; transform: translateY(10px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+
+.task-item {
+    animation: fadeIn 0.3s ease forwards;
+}
