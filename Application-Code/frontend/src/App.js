@@ -1,11 +1,9 @@
 import React from "react";
 import Tasks from "./Tasks";
 import { Paper, TextField, Checkbox, Button } from "@material-ui/core";
-import "./App.css"; // Update your CSS file accordingly
+import "./App.css";
 
 class App extends Tasks {
-    state = { tasks: [], currentTask: "" };
-
     render() {
         const { tasks, currentTask } = this.state;
         return (
@@ -37,8 +35,9 @@ class App extends Tasks {
                                         onClick={() => this.handleUpdate(task._id)}
                                         color="primary"
                                     />
+                                    {/* Changed task.task to task.title to match your database */}
                                     <div className={task.completed ? "task-text completed" : "task-text"}>
-                                        {task.task}
+                                        {task.title}
                                     </div>
                                     <Button onClick={() => this.handleDelete(task._id)} color="secondary" className="delete-task-btn">
                                         Delete
@@ -54,4 +53,3 @@ class App extends Tasks {
 }
 
 export default App;
-
