@@ -1,23 +1,23 @@
-# 🚀 Enterprise MERN Task Manager: GitOps Edition
+# 🚀 MERN Stack: DevSecOps & GitOps Pipeline
 
-A fully containerized, production-grade **MERN** (MongoDB, Express, React, Node.js) application. This project showcases a modern **CI/CD** and **GitOps** workflow, moving from automated builds to self-healing Kubernetes deployments.
+A production-grade **MERN** (MongoDB, Express, React, Node.js) application deployed with a "Security-First" mindset. This project demonstrates a complete automated lifecycle—from code quality and vulnerability scanning to self-healing Kubernetes orchestration.
 
 ---
 
 ## 📑 Table of Contents
 * [Architecture](#-architecture)
 * [Tech Stack](#-tech-stack)
-* [CI/CD & GitOps Workflow](#-cicd--gitops-workflow)
-* [Database & Validation](#-database--validation)
-* [Deployment](#-deployment)
+* [DevSecOps & GitOps Workflow](#-devsecops--gitops-workflow)
+* [Monitoring & Observability](#-monitoring--observability)
+* [Deployment Guide](#-deployment-guide)
 
 ---
 
 ## 🏗️ Architecture
-The application is split into three main tiers, orchestrated within a **Kubernetes (AKS/EKS)** cluster:
-* **Frontend**: React.js SPA with Material-UI, served via Nginx.
-* **Backend**: Node.js REST API handling business logic and database communication.
-* **Database**: MongoDB Atlas with secure environment-driven authentication.
+The application follows a microservices-style architecture orchestrated within an **Azure Kubernetes Service (AKS)** cluster:
+* **Frontend**: React.js SPA with Material-UI, optimized via Nginx.
+* **Backend**: Node.js REST API with Mongoose schema validation (3-char minimum task enforcement).
+* **Database**: MongoDB Atlas (Cloud) with secure credential injection.
 
 ---
 
@@ -26,49 +26,44 @@ The application is split into three main tiers, orchestrated within a **Kubernet
 | :--- | :--- |
 | **Frontend** | React, Material-UI, Axios |
 | **Backend** | Node.js, Express, Mongoose |
-| **Database** | MongoDB Atlas (Cloud) |
-| **CI/CD** | Jenkins (Automated Builds & Testing) |
-| **GitOps** | **Argo CD** (Continuous Delivery & Self-Healing) |
-| **Registry** | Azure Container Registry (ACR) |
+| **Database** | MongoDB Atlas |
+| **CI/CD** | **Jenkins** (Automation Hub) |
+| **Quality/Security**| **SonarQube** (SAST) & **Trivy** (Container Scanning) |
+| **GitOps** | **Argo CD** (Continuous Delivery) |
+| **Monitoring** | **Prometheus** & **Grafana** (Helm) |
 | **Orchestration** | Kubernetes (AKS) & Ingress-NGINX |
 
 ---
 
-## 🔄 CI/CD & GitOps Workflow
-This project follows **GitOps** principles, ensuring that the Git repository is the single source of truth for the entire infrastructure.
+## 🔄 DevSecOps & GitOps Workflow
+This pipeline ensures every release is high-quality, secure, and synchronized.
 
-1.  **Continuous Integration (Jenkins)**: 
-    * Triggered on every `git push` to GitHub.
-    * Builds Docker images for both Frontend and Backend.
-    * Pushes tagged images to the private Azure Container Registry.
-2.  **Continuous Delivery (Argo CD)**:
-    * Monitors the `/k8s` directory for changes in YAML manifests.
-    * Automatically synchronizes the cluster state with the repository.
-    * **Self-Healing**: Automatically detects and reverts manual changes in the cluster to maintain the desired Git state.
+### 1. Continuous Integration (Jenkins)
+* **Code Analysis**: **SonarQube** scans the source code for bugs, vulnerabilities, and code smells.
+* **Vulnerability Scanning**: **Trivy** performs a deep scan of the Docker images to catch CVEs in the OS and dependencies.
+* **Image Registry**: Verified images are pushed to the Azure Container Registry (ACR).
 
----
-
-## 🛡️ Database & Validation
-* **Strict Validation**: The backend implements Mongoose schema validation, enforcing a minimum of **3 characters** per task to maintain data integrity.
-* **Security**: Sensitive credentials (DB URIs, Passwords) are managed via **Kubernetes Secrets** and injected as environment variables at runtime.
+### 2. Continuous Delivery (Argo CD)
+* **GitOps Flow**: Argo CD monitors the `/k8s` folder for manifest changes.
+* **Self-Healing**: Automatically detects and corrects "configuration drift" if anyone tries to manually edit the cluster.
+* **Zero-Downtime**: Performs rolling updates across the frontend and API pods.
 
 ---
 
-## 🚀 Deployment Guide
+## 📈 Monitoring & Observability
+Managed via **Helm**, the monitoring stack provides real-time insights into cluster health:
+* **Prometheus**: Collects time-series metrics from nodes and application pods.
+* **Grafana**: Provides visual dashboards for CPU/Memory usage and network traffic.
 
-### 1. Prerequisites
-* A running Kubernetes Cluster.
-* Argo CD installed in the `argocd` namespace.
-* `kubectl` configured to point to your cluster.
+---
 
-### 2. Deployment via GitOps
-Connect your GitHub repository to Argo CD and create a new application pointing to the `k8s/` folder. Argo CD will handle the creation of:
-* Deployments
-* Services
-* Ingress Rules
+## 🚀 Deployment & Usage
 
-### 3. Monitoring the Rollout
-Check the status of your frontend and backend pods:
+### 🛡️ Security Check
+The backend enforces strict data integrity. Tasks must be at least **3 characters** long to pass Mongoose validation.
+
+### 📦 Manual Rollout
+To manually trigger a refresh of the environment:
 ```bash
-kubectl get pods -n mern-prod
-kubectl rollout status deployment/frontend -n mern-prod
+kubectl rollout restart deployment frontend -n mern-prod
+kubectl rollout restart deployment api -n mern-prod
