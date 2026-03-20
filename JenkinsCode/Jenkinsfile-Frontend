@@ -1,0 +1,121 @@
+pipeline {
+    agent any
+    
+    tools {
+        jdk 'jdk'
+        nodejs 'nodejs'
+    }
+    
+    environment {
+        SCANNER_HOME    = tool 'sonar-scanner'
+        ACR_NAME        = 'meranstackpro7721'
+        ACR_URL         = "meranstackpro7721.azurecr.io"
+        IMAGE_NAME      = 'mern-app-frontend'
+        // Credentials IDs from your Jenkins Store
+        AZURE_SP_ID     = 'ARM_CLIENT_ID'
+        AZURE_SP_SECRET = 'ARM_CLIENT_SECRET'
+        AZURE_TENANT    = 'ARM_TENANT_ID'
+    }
+
+    stages {
+        stage('Cleaning Workspace') {
+            steps {
+                cleanWs()
+            }
+        }
+
+        stage('Checkout from Git') {
+            steps {
+                git branch: 'main', url: 'https://github.com/abdoslama0079/Meran_stack_app.git'
+            }
+        }
+
+        stage('Sonarqube Analysis') {
+            steps {
+                dir('Application-Code/frontend') {
+                    withSonarQubeEnv('sonar-server') {
+                        sh """ $SCANNER_HOME/bin/sonar-scanner \
+                        -Dsonar.projectName=mern-frontend \
+                        -Dsonar.projectKey=mern-frontend """
+                    }
+                }
+            }
+        }
+
+        stage('Quality Gate') {
+            steps {
+                timeout(time: 5, unit: 'MINUTES') {
+                    waitForQualityGate abortPipeline: true
+                }
+            }
+        }
+
+        stage('Trivy FS Scan') {
+            steps {
+                dir('Application-Code/frontend') {
+                    sh 'trivy fs . > trivy-fs-report.txt'
+                }
+            }
+        }
+
+        stage("Docker Build & Scan") {
+            steps {
+                script {
+                    dir('Application-Code/frontend') {
+                        sh "docker build -t ${ACR_URL}/${IMAGE_NAME}:${BUILD_NUMBER} ."
+                        
+                        sh "trivy image ${ACR_URL}/${IMAGE_NAME}:${BUILD_NUMBER} > trivy-image-report.txt"
+                    }
+                }
+            }
+        }
+
+        stage('Push to Azure ACR') {
+            steps {
+                withCredentials([
+                    string(credentialsId: "${AZURE_SP_ID}", variable: 'CLIENT_ID'),
+                    string(credentialsId: "${AZURE_SP_SECRET}", variable: 'CLIENT_SECRET'),
+                    string(credentialsId: "${AZURE_TENANT}", variable: 'TENANT_ID')
+                ]) {
+                    sh "az login --service-principal -u ${CLIENT_ID} -p ${CLIENT_SECRET} --tenant ${TENANT_ID}"
+                    sh "az acr login --name ${ACR_NAME}"
+                    sh "docker push ${ACR_URL}/${IMAGE_NAME}:${BUILD_NUMBER}"
+                    sh "docker image prune -af" // Keeps your Jenkins node clean
+                }
+            }
+        }
+
+        stage('GitOps: Update K8s Manifest') {
+            steps {
+                dir('K8S-manifests/Frontend') {
+                    withCredentials([string(credentialsId: 'github', variable: 'GITHUB_TOKEN')]) {
+                        sh """
+                        git config user.email "abdoabdoslama509@gmail.com"
+                        git config user.name "Abdo-DevOps"
+                        
+                        # Replaces the image tag with the current Jenkins Build Number
+                        sed -i "s|image: ${ACR_URL}/${IMAGE_NAME}:.*|image: ${ACR_URL}/${IMAGE_NAME}:${BUILD_NUMBER}|" deployment.yaml
+                        
+                        git add deployment.yaml
+                        if ! git diff --quiet --cached; then
+                            git commit -m "GitOps: Update Image to version ${BUILD_NUMBER} [skip ci]"
+                            git push https://${GITHUB_TOKEN}@github.com/abdoslama0079/Meran_stack_app.git HEAD:main
+                        else
+                            echo "No changes detected in deployment manifest."
+                        fi
+                        """
+                    }
+                }
+            }
+        }
+    }
+
+    post {
+        always {
+            echo "Pipeline finished. Check SonarQube and Trivy reports in the workspace."
+        }
+        failure {
+            echo "Pipeline Failed! Check the logs to see if it was a Quality Gate or Security Scan failure."
+        }
+    }
+}
