@@ -7,7 +7,7 @@ A production-grade **MERN** (MongoDB, Express, React, Node.js) application deplo
 ## 📑 Table of Contents
 * [Architecture](#-architecture)
 * [Tech Stack](#-tech-stack)
-* [DevSecOps & GitOps Workflow](#-devsecops--gitops-workflow)
+* [DevOps & GitOps Workflow](#-DevOps--gitops-workflow)
 * [Monitoring & Observability](#-monitoring--observability)
 * [Deployment Guide](#-deployment-guide)
 
@@ -35,7 +35,7 @@ The application follows a microservices-style architecture orchestrated within a
 
 ---
 
-## 🔄 DevSecOps & GitOps Workflow
+## 🔄 DevOps & GitOps Workflow
 This pipeline ensures every release is high-quality, secure, and synchronized.
 
 ### 1. Continuous Integration (Jenkins)
