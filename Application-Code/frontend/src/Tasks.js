@@ -26,26 +26,26 @@ class Tasks extends Component {
         e.preventDefault();
         const originalTasks = this.state.tasks;
         try {
-            // Sends 'title' to match backend requirements
+            // Sends 'title' to match your database requirements
             const response = await addTask({ title: this.state.currentTask });
             const newTask = response.data.data;
             const tasks = [...originalTasks];
             tasks.push(newTask);
             this.setState({ tasks, currentTask: "" });
         } catch (error) {
-            console.log("Validation Error: Ensure text is at least 3 characters", error);
+            console.log("Validation Error: Ensure text is 3+ characters", error);
         }
     };
 
-    handleUpdate = async (currentTask) => {
+    handleUpdate = async (currentTaskId) => {
         const originalTasks = this.state.tasks;
         try {
             const tasks = [...originalTasks];
-            const index = tasks.findIndex((task) => task._id === currentTask);
+            const index = tasks.findIndex((task) => task._id === currentTaskId);
             tasks[index] = { ...tasks[index] };
             tasks[index].completed = !tasks[index].completed;
             this.setState({ tasks });
-            await updateTask(currentTask, {
+            await updateTask(currentTaskId, {
                 completed: tasks[index].completed,
             });
         } catch (error) {
@@ -53,14 +53,14 @@ class Tasks extends Component {
         }
     };
 
-    handleDelete = async (currentTask) => {
+    handleDelete = async (currentTaskId) => {
         const originalTasks = this.state.tasks;
         try {
             const tasks = originalTasks.filter(
-                (task) => task._id !== currentTask
+                (task) => task._id !== currentTaskId
             );
             this.setState({ tasks });
-            await deleteTask(currentTask);
+            await deleteTask(currentTaskId);
         } catch (error) {
             this.setState({ tasks: originalTasks });
         }
