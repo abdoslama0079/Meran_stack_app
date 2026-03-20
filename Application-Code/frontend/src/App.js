@@ -7,7 +7,6 @@ import {
     Button, 
     Typography, 
     Container, 
-    IconButton, 
     List, 
     ListItem, 
     ListItemText, 
@@ -16,7 +15,6 @@ import {
     Divider,
     Box
 } from "@material-ui/core";
-import { DeleteOutline, Add as AddIcon, AssignmentTurnedIn } from "@material-ui/icons";
 import "./App.css";
 
 class App extends Tasks {
@@ -27,8 +25,7 @@ class App extends Tasks {
             <Container maxWidth="sm" className="app-container">
                 <Paper elevation={4} className="todo-card">
                     <Box p={4}>
-                        <Box display="flex" alignItems="center" mb={3} justifyContent="center">
-                            <AssignmentTurnedIn color="primary" style={{ fontSize: 40, marginRight: 10 }} />
+                        <Box mb={3} textAlign="center">
                             <Typography variant="h4" component="h1" className="app-title">
                                 Task Manager Pro
                             </Typography>
@@ -49,7 +46,6 @@ class App extends Tasks {
                                 type="submit" 
                                 variant="contained" 
                                 color="primary" 
-                                startIcon={<AddIcon />}
                                 className="add-btn"
                                 style={{ marginTop: '10px', height: '56px' }}
                                 fullWidth
@@ -72,8 +68,6 @@ class App extends Tasks {
                                                 <Checkbox
                                                     edge="start"
                                                     checked={task.completed}
-                                                    tabIndex={-1}
-                                                    disableRipple
                                                     color="primary"
                                                     onClick={() => this.handleUpdate(task._id)}
                                                 />
@@ -83,20 +77,19 @@ class App extends Tasks {
                                                 style={{ textDecoration: task.completed ? 'line-through' : 'none', color: task.completed ? '#aaa' : '#333' }}
                                             />
                                             <ListItemSecondaryAction>
-                                                <IconButton 
-                                                    edge="end" 
-                                                    aria-label="delete" 
+                                                <Button 
                                                     onClick={() => this.handleDelete(task._id)}
                                                     color="secondary"
+                                                    size="small"
                                                 >
-                                                    <DeleteOutline />
-                                                </IconButton>
+                                                    Delete
+                                                </Button>
                                             </ListItemSecondaryAction>
                                         </ListItem>
                                     ))
                                 ) : (
                                     <Box py={3} textAlign="center">
-                                        <Typography color="textSecondary">No tasks found. Start by adding one above!</Typography>
+                                        <Typography color="textSecondary">No tasks found.</Typography>
                                     </Box>
                                 )}
                             </List>
