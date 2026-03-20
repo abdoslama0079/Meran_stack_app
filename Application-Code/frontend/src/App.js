@@ -21,21 +21,21 @@ class App extends Tasks {
                                 value={currentTask}
                                 required={true}
                                 onChange={this.handleChange}
-                                placeholder="Add New TO-DO"
+                                placeholder="Add New TO-DO (min 3 chars)"
                             />
                             <Button className="add-task-btn" color="primary" variant="outlined" type="submit">
                                 Add Task
                             </Button>
                         </form>
                         <div className="tasks-list">
-                            {tasks.map((task) => (
+                            {/* Safety check to ensure tasks is an array before mapping */}
+                            {Array.isArray(tasks) && tasks.map((task) => (
                                 <Paper key={task._id} className="task-item">
                                     <Checkbox
                                         checked={task.completed}
                                         onClick={() => this.handleUpdate(task._id)}
                                         color="primary"
                                     />
-                                    {/* Changed task.task to task.title to match your database */}
                                     <div className={task.completed ? "task-text completed" : "task-text"}>
                                         {task.title}
                                     </div>
