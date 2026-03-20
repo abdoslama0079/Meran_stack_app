@@ -4,8 +4,6 @@ metadata:
   name: main-ingress
   namespace: mern-prod
   annotations:
-    nginx.ingress.kubernetes.io/rewrite-target: /
-    nginx.ingress.kubernetes.io/use-regex: "true"
 spec:
   ingressClassName: webapprouting.kubernetes.azure.com
   rules:
