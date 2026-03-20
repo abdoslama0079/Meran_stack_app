@@ -1,6 +1,8 @@
 import axios from "axios";
-const apiUrl = process.env.REACT_APP_BACKEND_URL //"http://localhost:8080/api/tasks";
-console.log(apiUrl)
+
+// This tells the browser: "Stay on the current IP and just add /api/tasks"
+const apiUrl = "/api/tasks"; 
+
 export function getTasks() {
     return axios.get(apiUrl);
 }
