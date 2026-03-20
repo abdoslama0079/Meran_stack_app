@@ -1,36 +1,89 @@
+/* Global Reset & Pro Background */
 body {
     margin: 0;
     padding: 0;
     font-family: 'Roboto', sans-serif;
-    background-color: #f4f4f4;
+    background: linear-gradient(135deg, #6e8efb, #a777e3); /* Your requested gradient */
     color: #333;
     line-height: 1.6;
+    min-height: 100vh;
 }
 
-.app-wrapper {
+/* Layout Wrapper */
+.app-container {
     display: flex;
     justify-content: center;
     align-items: center;
     min-height: 100vh;
     padding: 20px;
-    background: linear-gradient(135deg, #6e8efb, #a777e3);
 }
 
-/* Optional: Add some more global styles for typography */
-h1, h2, h3, h4, h5, h6 {
-    font-weight: 400;
+/* The Main Card */
+.todo-card {
+    border-radius: 16px !important;
+    background-color: rgba(255, 255, 255, 0.98) !important;
+    box-shadow: 0 15px 35px rgba(0,0,0,0.2) !important;
+    overflow: hidden;
 }
 
-a {
-    color: #333;
-    text-decoration: none;
+.app-title {
+    font-weight: 500 !important;
+    color: #4a148c;
+    letter-spacing: 0.5px;
 }
 
-a:hover {
-    color: #6e8efb;
+/* Professional Input Styling */
+.task-form {
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
 }
 
-/* Styling for any code elements */
+.add-btn {
+    background: linear-gradient(90deg, #6e8efb, #a777e3) !important;
+    color: white !important;
+    font-weight: 600 !important;
+    text-transform: none !important;
+    padding: 10px !important;
+    transition: transform 0.2s ease, box-shadow 0.2s ease !important;
+}
+
+.add-btn:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 5px 15px rgba(110, 142, 251, 0.4) !important;
+}
+
+/* Task List Styling */
+.tasks-list {
+    margin-top: 20px;
+    max-height: 450px;
+    overflow-y: auto;
+}
+
+/* Custom Scrollbar */
+.tasks-list::-webkit-scrollbar {
+    width: 5px;
+}
+.tasks-list::-webkit-scrollbar-thumb {
+    background: #d1d1d1;
+    border-radius: 10px;
+}
+
+.task-item {
+    transition: background-color 0.2s ease;
+}
+
+.task-item:hover {
+    background-color: #fcfaff !important;
+}
+
+/* Striking through completed text */
+.task-text-completed {
+    color: #888 !important;
+    font-style: italic;
+}
+
+/* Code & Typography Helpers */
 code {
     background-color: #eee;
     padding: 2px 4px;
@@ -38,3 +91,6 @@ code {
     font-family: 'Courier New', monospace;
 }
 
+h1, h2, h3, h4, h5, h6 {
+    font-weight: 400;
+}
