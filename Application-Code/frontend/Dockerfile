@@ -2,7 +2,7 @@ FROM node:14-alpine AS build
 WORKDIR /usr/src/app
 
 COPY package*.json ./
-RUN npm ci --only=production
+RUN npm install --only=production
 
 FROM node:14-alpine
 WORKDIR /usr/src/app
