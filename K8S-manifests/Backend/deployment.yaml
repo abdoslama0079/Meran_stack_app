@@ -24,7 +24,7 @@ spec:
       serviceAccountName: mern-sa
       containers:
         - name: api
-          image: meranstackpro7721.azurecr.io/mern-backend:__IMAGE__
+          image: meranstackpro7721.azurecr.io/mern-backend:24
           env:
             - name: MONGO_CONN_STR
               value: mongodb://mongodb-svc:27017/todo?directConnection=true
